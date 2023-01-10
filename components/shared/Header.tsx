@@ -5,23 +5,11 @@ import Image from 'next/image';
 import styled from 'styled-components';
 
 // @mui
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {
-  Button,
-  Box,
-  Container,
-  IconButton,
-  Tooltip,
-  MenuItem,
-  Menu,
-  ListItemIcon,
-  Avatar,
-  Divider,
-} from '@mui/material';
+import { Button, Box, Container, IconButton, Tooltip, Avatar, Divider } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 // @mui icons
 import { UploadFile, MoreVert, MessageOutlined, InboxOutlined, SearchOutlined } from '@mui/icons-material';
-import SignInDialog from '../feedback/SignInDialog';
+import LoginDialog from '../feedback/LoginDialog';
 import AccountSettingMenu from '../navigation/AccountSettingMenu';
 import MoreVertMenu from '../navigation/MoreVertMenu';
 import SearchDataDisplay from '../data/SearchDataDisplay';
@@ -133,17 +121,17 @@ const Header = () => {
   };
   // handle isLogin
   const [isLogin, setIsLogin] = useState(false);
-  // handle signin-dialog
+  // handle login-dialog
   const emails = ['username@gmail.com', 'user02@gmail.com'];
-  const [openSignInDialog, setOpenSignInDialog] = React.useState(false);
+  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
   const [selectedValueSignInDialog, setSelectedValueSignInDialog] = React.useState(emails[1]);
 
-  const handleClickOpenSignInDialog = () => {
-    setOpenSignInDialog(true);
+  const handleClickOpenLogInDialog = () => {
+    setOpenLogInDialog(true);
   };
 
   const handleCloseSignInDialog = (value: string) => {
-    setOpenSignInDialog(false);
+    setOpenLogInDialog(false);
     setSelectedValueSignInDialog(value);
   };
 
@@ -243,12 +231,12 @@ const Header = () => {
               ) : (
                 <>
                   <>
-                    <SCButton variant="contained" size="medium" onClick={handleClickOpenSignInDialog} color="info">
+                    <SCButton variant="contained" size="medium" onClick={handleClickOpenLogInDialog} color="info">
                       Log in
                     </SCButton>
-                    <SignInDialog
+                    <LoginDialog
                       selectedValue={selectedValueSignInDialog}
-                      open={openSignInDialog}
+                      open={openLogInDialog}
                       onClose={handleCloseSignInDialog}
                     />
                   </>

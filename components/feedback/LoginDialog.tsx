@@ -15,7 +15,7 @@ import { IDialogProps } from '../../interfaces/dialog.interface';
 
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 
-const SignInDialog = (props: IDialogProps) => {
+const LogInDialog = (props: IDialogProps) => {
   const { onClose, selectedValue, open } = props;
 
   const handleClose = () => {
@@ -57,4 +57,4 @@ const SignInDialog = (props: IDialogProps) => {
   );
 };
 
-export default SignInDialog;
+export default LogInDialog;

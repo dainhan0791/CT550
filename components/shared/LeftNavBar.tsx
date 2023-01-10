@@ -1,17 +1,26 @@
 import { Divider } from '@mui/material';
 import React from 'react';
-import LeftNavBarSignInTo from '../feedback/LeftNavBarSignInTo';
-import LeftNavBarMenu from '../navigation/LeftNavBarMenu';
+import styled from 'styled-components';
+import LeftSideBarLogInTo from '../feedback/LeftSideBarLogInTo';
+import LeftSideBarMenu from '../navigation/LeftSideBarMenu';
+import SuggestedAccounts from './SuggestedAccounts';
 
-const LeftNavBar = () => {
+const SCDivider = styled(Divider)`
+  margin: 0 1rem;
+`;
+
+const LeftSideBar = () => {
+  const [isLogin, setIsLogin] = React.useState(false);
+
   return (
     <>
-      <LeftNavBarMenu />
-      <Divider />
-      <LeftNavBarSignInTo />
-      <Divider />
+      <LeftSideBarMenu />
+      <SCDivider />
+      {!isLogin && <LeftSideBarLogInTo />}
+      <SCDivider />
+      <SuggestedAccounts />
     </>
   );
 };
 
-export default LeftNavBar;
+export default LeftSideBar;
