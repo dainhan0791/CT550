@@ -4,7 +4,7 @@ import { Box, List, ListItem, ListItemButton, ListItemIcon } from '@mui/material
 import { Home, People } from '@mui/icons-material';
 import styled from 'styled-components';
 
-const SCListItemText = styled.p`
+const SCListItemText = styled.p<any>`
   font-family: ProximaNova, Arial, Tahoma, PingFangSC, sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
