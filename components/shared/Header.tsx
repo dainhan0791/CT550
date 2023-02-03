@@ -9,10 +9,10 @@ import { Button, Box, Container, IconButton, Tooltip, Avatar, Divider } from '@m
 import Grid2 from '@mui/material/Unstable_Grid2';
 // @mui icons
 import { UploadFile, MoreVert, MessageOutlined, InboxOutlined, SearchOutlined } from '@mui/icons-material';
-import LoginDialog from '../feedback/LoginDialog';
-import AccountSettingMenu from '../navigation/AccountSettingMenu';
-import MoreVertMenu from '../navigation/MoreVertMenu';
+import LoginDialog from '../dialogs/LoginDialog';
 import SearchDataDisplay from '../data/SearchDataDisplay';
+import AccountSettingMenu from '../menus/AccountSettingMenu';
+import MoreVertMenu from '../menus/MoreVertMenu';
 // components feedback
 
 const SCHeader = styled.div`
@@ -79,7 +79,6 @@ const SCHeaderForm = styled(Box)`
   gap: 10px;
 `;
 const SCHeaderInput = styled.input`
-  font-family: 'IBM Plex Sans', ProximaNova, Arial, Tahoma, PingFangSC, sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 22px;

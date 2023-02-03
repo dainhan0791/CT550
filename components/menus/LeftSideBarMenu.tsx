@@ -5,7 +5,6 @@ import { Home, People } from '@mui/icons-material';
 import styled from 'styled-components';
 
 const SCListItemText = styled.p<any>`
-  font-family: ProximaNova, Arial, Tahoma, PingFangSC, sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
   color: ${(props) => (props.home ? 'rgba(255,44,85,1)' : 'rgba(22, 24, 35, 1)')};

@@ -7,6 +7,7 @@ import styled from 'styled-components';
 // Components
 import Layout from '../components/shared/Layout';
 import LeftSideBar from '../components/shared/LeftNavBar';
+import Feeds from '../components/shared/Feeds';
 
 const SCBodyWrapper = styled(Container)`
   margin-top: 80px;
@@ -20,7 +21,9 @@ export default function Home() {
           <Grid2 xs={4}>
             <LeftSideBar />
           </Grid2>
-          <Grid2 xs={8}>Video Content</Grid2>
+          <Grid2 xs={8}>
+            <Feeds />
+          </Grid2>
         </Grid2>
       </SCBodyWrapper>
     </Layout>

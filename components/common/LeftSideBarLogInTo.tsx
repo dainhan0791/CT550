@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
-import LoginDialog from './LoginDialog';
+import LoginDialog from '../dialogs/LoginDialog';
 
 const LeftSideBarLogInTo = () => {
   const emails = ['username@gmail.com', 'user02@gmail.com'];
