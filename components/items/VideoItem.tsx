@@ -7,6 +7,7 @@ import Video from '../common/Video';
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
   height: 650px;
+  z-index: 999;
 `;
 
 const VideoItem = ({ src }: { src: string }) => {

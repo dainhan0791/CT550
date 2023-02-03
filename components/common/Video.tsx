@@ -103,8 +103,8 @@ const Video = ({ src }: { src: string }) => {
       <SCHashtagWrapper>
         <HashtagChip hashtag={'default'} />
       </SCHashtagWrapper>
-      <SCVideoInnerWrapper>
-        {src && <SCVideo ref={videoRef} src={src} loop preload="true" onClick={handleVideo} />}
+      <SCVideoInnerWrapper onClick={handleVideo}>
+        {src && <SCVideo ref={videoRef} src={src} loop preload="true" />}
         <SCVideoActionWrapper>
           <SCVideoActionInnerWrapper>
             <SCButton>
