@@ -5,15 +5,23 @@ import Image from 'next/image';
 import styled from 'styled-components';
 
 // @mui
-import { Button, Box, Container, IconButton, Tooltip, Avatar, Divider } from '@mui/material';
+import { Button, Box, Container, IconButton, Tooltip, Avatar, Divider, Skeleton } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
+
 // @mui icons
 import { UploadFile, MoreVert, MessageOutlined, InboxOutlined, SearchOutlined } from '@mui/icons-material';
 import LoginDialog from '../dialogs/LoginDialog';
 import SearchDataDisplay from '../data/SearchDataDisplay';
 import AccountSettingMenu from '../menus/AccountSettingMenu';
 import MoreVertMenu from '../menus/MoreVertMenu';
-// components feedback
+import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
+import { getIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
+// firebase
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { IAccountItem } from '../../interfaces/account.interface';
 
 const SCHeader = styled.div`
   display: -webkit-box;
@@ -112,27 +120,66 @@ const Header = () => {
   // handle header menu
   const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorElMenu);
+  // handle isLogin
+  const [isLogin, setIsLogin] = useState(false);
+  // handle login-dialog
+  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
+
+  const user = useAppSelector((state) => state.auth.user);
+
+  const [profile, setProfile] = React.useState<any>();
+
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElMenu(event.currentTarget);
   };
   const handleCloseMenu = () => {
     setAnchorElMenu(null);
   };
-  // handle isLogin
-  const [isLogin, setIsLogin] = useState(false);
-  // handle login-dialog
-  const emails = ['username@gmail.com', 'user02@gmail.com'];
-  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
-  const [selectedValueSignInDialog, setSelectedValueSignInDialog] = React.useState(emails[1]);
 
   const handleClickOpenLogInDialog = () => {
     setOpenLogInDialog(true);
   };
 
-  const handleCloseSignInDialog = (value: string) => {
+  const handleCloseSignInDialog = () => {
     setOpenLogInDialog(false);
-    setSelectedValueSignInDialog(value);
   };
+
+  const checkIsLogin = () => {
+    if (!!getIdTokenFromLocalStorage()) {
+      setIsLogin(true);
+    } else {
+      setIsLogin(false);
+    }
+  };
+
+  // const getProfileFromFirebase = () => {
+  //   if (fAuth.currentUser?.uid && fStore) {
+  //     onSnapshot(doc(fStore, 'users', fAuth.currentUser.uid), (doc) => {
+  //       // const source = doc.metadata.hasPendingWrites ? 'Local' : 'Server';
+  //       setProfile(doc.data() as IAccountItem);
+  //     });
+  //   }
+  // };
+
+  const getProfileFromFirebase = async () => {
+    if (fStore && fAuth.currentUser?.uid) {
+      const userRef = doc(fStore, 'users', fAuth.currentUser.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        console.log('Document data:', docSnap.data());
+        setProfile(docSnap.data());
+      } else {
+        // doc.data() will be undefined in this case
+        console.log('No such document!');
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    checkIsLogin();
+    getProfileFromFirebase();
+  }, [user]);
 
   return (
     <SCHeader>
@@ -176,17 +223,20 @@ const Header = () => {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                       >
-                        <Avatar
-                          alt="Profile Image"
-                          src="/images/profile.jpg"
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            backgroundSize: 'cover',
-                            WebkitBackgroundSize: 'cover',
-                            objectFit: 'cover',
-                          }}
-                        />
+                        {profile ? (
+                          <Avatar
+                            src={profile.photoURL}
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              backgroundSize: 'cover',
+                              WebkitBackgroundSize: 'cover',
+                              objectFit: 'cover',
+                            }}
+                          />
+                        ) : (
+                          <Skeleton variant="circular" width={32} height={32} />
+                        )}
                       </IconButton>
                     </Tooltip>
 
@@ -233,11 +283,7 @@ const Header = () => {
                     <SCButton variant="contained" size="medium" onClick={handleClickOpenLogInDialog} color="info">
                       Log in
                     </SCButton>
-                    <LoginDialog
-                      selectedValue={selectedValueSignInDialog}
-                      open={openLogInDialog}
-                      onClose={handleCloseSignInDialog}
-                    />
+                    <LoginDialog open={openLogInDialog} onClose={handleCloseSignInDialog} />
                   </>
                   <SCMoreIconWrapper>
                     <Tooltip title="Account settings">

@@ -33,30 +33,10 @@ const MoreVertMenu = ({
       anchorOrigin={anchorOrigin}
     >
       <MenuItem>
-        <Avatar /> Profile
+        <Avatar /> Theme
       </MenuItem>
-      <MenuItem>
-        <Avatar /> My account
-      </MenuItem>
-      <MenuItem>
-        <ListItemIcon>
-          <UploadFile />
-        </ListItemIcon>
-        Add another account
-      </MenuItem>
-      <MenuItem>
-        <ListItemIcon>
-          <UploadFile />
-        </ListItemIcon>
-        Settings
-      </MenuItem>
+
       <Divider />
-      <MenuItem>
-        <ListItemIcon>
-          <UploadFile />
-        </ListItemIcon>
-        Logout
-      </MenuItem>
     </Menu>
   );
 };

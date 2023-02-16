@@ -48,6 +48,7 @@ body {
   text-rendering: optimizeSpeed;
   overflow: auto;
   color: rgba(22, 24, 35, 1);
+  padding-right: 0 !important;
 }
 
 a {

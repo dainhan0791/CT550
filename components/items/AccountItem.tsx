@@ -3,6 +3,7 @@ import { Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 import styled from 'styled-components';
+import { IAccountItem, IIsVideoProps } from '../../interfaces/account.interface';
 
 const SCAccountItemWrapper = styled.div`
   cursor: pointer;
@@ -24,7 +25,7 @@ const SCName = styled.p`
   overflow: hidden;
   white-space: nowrap;
 `;
-const SCIcon = styled(Check)`
+const SCCheckIcon = styled(Check)`
   background: rgb(32, 213, 236);
   width: 0.9rem;
   height: 0.9rem;
@@ -32,17 +33,13 @@ const SCIcon = styled(Check)`
   color: white;
 `;
 
-interface IVideoProps {
-  video: boolean;
-}
-
-const SCAvatar = styled(Avatar)<IVideoProps>`
-  width: ${(props) => (props.video ? '3.4rem' : '2.4rem')};
-  height: ${(props) => (props.video ? '3.4rem' : '2.4rem')};
+const SCAvatar = styled(Avatar)<IIsVideoProps>`
+  width: ${(props) => (props.isVideo ? '3.4rem' : '2.4rem')};
+  height: ${(props) => (props.isVideo ? '3.4rem' : '2.4rem')};
 `;
 
-const SCListBodyItem = styled.div<IVideoProps>`
-  margin-left: ${(props) => (props.video ? '1rem' : ' 0rem')};
+const SCListBodyItem = styled.div<IIsVideoProps>`
+  margin-left: ${(props) => (props.isVideo ? '1rem' : ' 0rem')};
 `;
 
 const SCNameWrapper = styled.div`
@@ -98,37 +95,35 @@ const SCButtonFollow = styled.button`
     background-color: rgba(254, 44, 85, 0.06);
   }
 `;
-const AccountItem = ({ video }: { video: boolean }) => {
+1;
+
+const AccountItem = (props: IAccountItem) => {
   return (
     <SCAccountItemWrapper>
       <List>
         <ListItem alignItems="flex-start">
           <ListItemAvatar sx={{}}>
-            <SCAvatar src={'/images/profile.jpg'} video={video} />
+            <SCAvatar src={props.photoURL} isVideo={props.isVideo} />
           </ListItemAvatar>
-          <SCListBodyItem video={video}>
-            {video ? (
+          <SCListBodyItem isVideo={props.isVideo}>
+            {props.isVideo ? (
               <>
                 <SCAccountHeadItem>
                   <SCNameWrapper>
-                    <SCName>Dai Nhan</SCName>
-                    <SCSubName>Đặng Ngọc Bích Tuyền</SCSubName>
+                    <SCName>{props.name}</SCName>
+                    <SCSubName>{props.nickname}</SCSubName>
                   </SCNameWrapper>
                   <SCButtonFollow>Follow</SCButtonFollow>
                 </SCAccountHeadItem>
-                <SCDescriptionVideo>
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eaque quisquam praesentium totam
-                  reprehenderit ullam quaerat cum fuga mollitia. Necessitatibus facilis, odit rerum tempora nemo nihil
-                  iusto recusandae ut doloremque tenetur.
-                </SCDescriptionVideo>
+                <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
               </>
             ) : (
               <SCAccountHeadItem style={{ flexDirection: 'column' }}>
                 <SCNameWrapper>
-                  <SCName style={{ fontSize: '0.9rem', lineHeight: '1.2rem' }}>Dai Nhan</SCName>
-                  <SCIcon />
+                  <SCName style={{ fontSize: '0.9rem', lineHeight: '1.2rem' }}>{props.name}</SCName>
+                  {props.tick && <SCCheckIcon />}
                 </SCNameWrapper>
-                <SCSubName style={{ lineHeight: '1.2rem' }}>Kenji</SCSubName>
+                <SCSubName style={{ lineHeight: '1.2rem' }}>{props.nickname}</SCSubName>
               </SCAccountHeadItem>
             )}
           </SCListBodyItem>

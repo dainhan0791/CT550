@@ -2,6 +2,11 @@ import React from 'react';
 
 import styled from 'styled-components';
 import AccountItem from '../items/AccountItem';
+// firebase
+import { collection, getDocs, query } from 'firebase/firestore';
+import { fStore } from '../../firebase/init.firebase';
+import { IAccountItem } from '../../interfaces/account.interface';
+import { useAppSelector } from '../../redux/hooks/hooks';
 
 const SCSuggestedAccountsWrapper = styled.div`
   display: flex;
@@ -24,10 +29,38 @@ const SCSeeAll = styled.p`
 `;
 
 const SuggestedAccounts = () => {
+  const user = useAppSelector((state) => state.auth.user);
+  const [suggestedAccounts, setSuggestedAccounts] = React.useState<any>([]);
+
+  React.useEffect(() => {
+    getSuggestedAccount();
+  }, [user]);
+
+  const getSuggestedAccount = async () => {
+    try {
+      const q = query(collection(fStore, 'users'));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      data && setSuggestedAccounts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <SCSuggestedAccountsWrapper>
       <SCSuggestedAccountsLabel>Suggested accounts</SCSuggestedAccountsLabel>
-      <AccountItem video={false} />
+      {suggestedAccounts &&
+        suggestedAccounts.map((account: IAccountItem) => (
+          <AccountItem
+            isVideo={false}
+            key={account.uid}
+            name={account.name}
+            nickname={account.nickname}
+            photoURL={account.photoURL}
+            tick={account.tick}
+          />
+        ))}
       <SCSeeAll>See All</SCSeeAll>
     </SCSuggestedAccountsWrapper>
   );

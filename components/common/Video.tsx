@@ -64,7 +64,15 @@ const SCView = styled.p`
 }
 `;
 
-const Video = ({ src }: { src: string }) => {
+interface IVideo {
+  hashtag: string;
+  url: string;
+  likes: number;
+  comments: number;
+  shares: number;
+}
+
+const Video = (video: IVideo) => {
   const videoRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
   const options = {
@@ -86,7 +94,7 @@ const Video = ({ src }: { src: string }) => {
         setPlaying(false);
       }
     }
-  }, [isVisibile]);
+  }, [isVisibile, playing]);
 
   const handleVideo = () => {
     if (playing && videoRef) {
@@ -101,28 +109,28 @@ const Video = ({ src }: { src: string }) => {
   return (
     <SCVideoWrapper>
       <SCHashtagWrapper>
-        <HashtagChip hashtag={'default'} />
+        <HashtagChip hashtag={video.hashtag} />
       </SCHashtagWrapper>
       <SCVideoInnerWrapper onClick={handleVideo}>
-        {src && <SCVideo ref={videoRef} src={src} loop preload="true" />}
+        {video.url && <SCVideo ref={videoRef} src={video.url} loop preload="true" />}
         <SCVideoActionWrapper>
           <SCVideoActionInnerWrapper>
             <SCButton>
               <Favorite />
             </SCButton>
-            <SCView>999 likes</SCView>
+            <SCView>{video.likes}</SCView>
           </SCVideoActionInnerWrapper>
           <SCVideoActionInnerWrapper>
             <SCButton>
               <Textsms />
             </SCButton>
-            <SCView>999</SCView>
+            <SCView>{video.comments}</SCView>
           </SCVideoActionInnerWrapper>
           <SCVideoActionInnerWrapper>
             <SCButton>
               <Share />
             </SCButton>
-            <SCView>999</SCView>
+            <SCView>{video.shares}</SCView>
           </SCVideoActionInnerWrapper>
         </SCVideoActionWrapper>
       </SCVideoInnerWrapper>
