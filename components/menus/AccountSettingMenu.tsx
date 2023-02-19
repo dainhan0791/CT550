@@ -4,12 +4,12 @@ import { useAppDispatch } from '../../redux/hooks/hooks';
 import { clearUser } from '../../redux/slices/auth.slice';
 import SettingsUserDialog from '../dialogs/SettingsUserDialog';
 import { handleSignOutFirebase } from '../../firebase/utils.firebase';
-import MainSnackbar from '../snackbars/MainSnackbar';
-import { SIGN_OUT_ERROR, SIGN_OUT_SUCESS, SNACKBAR_ERROR, SNACKBAR_SUCESS } from '../../constants/snackbar.constant';
 import { removeIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Logout } from '@mui/icons-material';
 import styled from 'styled-components';
+import { useSnackbar } from 'notistack';
+import { LOGOUT_SUCCESS, LOGOUT_ERROR } from '../../constants/login.constant';
 
 const AccountSettingMenu = ({
   anchorEl,
@@ -31,6 +31,7 @@ const AccountSettingMenu = ({
   anchorOrigin: any;
 }) => {
   const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   const [openSettingsUserDialog, setOpenSettingsUserDialog] = React.useState<boolean>(false);
   const handleOpenSettingsUserDialog = () => {
     setOpenSettingsUserDialog(true);
@@ -38,37 +39,16 @@ const AccountSettingMenu = ({
   const handleCloseSettingsUserDialog = () => {
     setOpenSettingsUserDialog(false);
   };
-  // handle open snackbar
-  // const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
-  // const [messageSnackbar, setMessageSnackbar] = React.useState<string>('');
-  // const [severitySnackbar, setSeveritySnackbar] = React.useState<string>('');
-
-  // const handleOpenSnackbar = () => {
-  //   setOpenSnackbar(true);
-  // };
-  // const handleCloseSnackbar = () => {
-  //   setOpenSnackbar(false);
-  // };
-
-  // const openSnackbarSignOutSuccess = () => {
-  //   setMessageSnackbar(SIGN_OUT_SUCESS);
-  //   handleOpenSnackbar();
-  //   setSeveritySnackbar(SNACKBAR_SUCESS);
-  // };
-
-  // const openSnackbarSignOutError = () => {
-  //   setMessageSnackbar(SIGN_OUT_ERROR);
-  //   handleOpenSnackbar();
-  //   setSeveritySnackbar(SNACKBAR_ERROR);
-  // };
 
   const handleLogout = async () => {
     try {
+      enqueueSnackbar(LOGOUT_SUCCESS, { variant: 'success' });
       dispatch(clearUser());
       removeIdTokenFromLocalStorage();
       await handleSignOutFirebase();
     } catch (error) {
       console.log(error);
+      enqueueSnackbar(LOGOUT_ERROR, { variant: 'error' });
     }
   };
 

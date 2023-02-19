@@ -16,12 +16,13 @@ import AccountSettingMenu from '../menus/AccountSettingMenu';
 import MoreVertMenu from '../menus/MoreVertMenu';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
 import { getIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
-import { fAuth, fStore } from '../../firebase/init.firebase';
+import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 // firebase
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore';
 import { IAccountItem } from '../../interfaces/account.interface';
+import UploadVideoDialog from '../dialogs/UploadVideoDialog';
 
 const SCHeader = styled.div`
   display: -webkit-box;
@@ -117,26 +118,27 @@ const SCButton = styled(Button)`
 const SCMoreIconWrapper = styled.div``;
 
 const Header = () => {
+  const user = useAppSelector((state) => state.auth.user);
+
   // handle header menu
   const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorElMenu);
+
   // handle isLogin
   const [isLogin, setIsLogin] = useState(false);
-  // handle login-dialog
-  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
-
-  const user = useAppSelector((state) => state.auth.user);
-
+  // profile
   const [profile, setProfile] = React.useState<any>();
 
+  // handle open menu
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElMenu(event.currentTarget);
   };
   const handleCloseMenu = () => {
     setAnchorElMenu(null);
   };
-
-  const handleClickOpenLogInDialog = () => {
+  // handle login-dialog
+  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
+  const handleOpenLogInDialog = () => {
     setOpenLogInDialog(true);
   };
 
@@ -144,202 +146,217 @@ const Header = () => {
     setOpenLogInDialog(false);
   };
 
-  const checkIsLogin = () => {
-    if (!!getIdTokenFromLocalStorage()) {
-      setIsLogin(true);
-    } else {
-      setIsLogin(false);
-    }
+  // handle open upload dialog
+  const [openUploadVideoDialog, setOpenUploadVideoDialog] = React.useState(false);
+  const handleOpenUploadVideoDialog = () => {
+    setOpenUploadVideoDialog(true);
   };
 
-  // const getProfileFromFirebase = () => {
-  //   if (fAuth.currentUser?.uid && fStore) {
-  //     onSnapshot(doc(fStore, 'users', fAuth.currentUser.uid), (doc) => {
-  //       // const source = doc.metadata.hasPendingWrites ? 'Local' : 'Server';
-  //       setProfile(doc.data() as IAccountItem);
-  //     });
-  //   }
-  // };
-
-  const getProfileFromFirebase = async () => {
-    if (fStore && fAuth.currentUser?.uid) {
-      const userRef = doc(fStore, 'users', fAuth.currentUser.uid);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        console.log('Document data:', docSnap.data());
-        setProfile(docSnap.data());
-      } else {
-        // doc.data() will be undefined in this case
-        console.log('No such document!');
-      }
-    }
+  const handleCloseUploadVideoDialog = () => {
+    setOpenUploadVideoDialog(false);
   };
 
   React.useEffect(() => {
+    const checkIsLogin = () => {
+      if (!!getIdTokenFromLocalStorage()) {
+        setIsLogin(true);
+      } else {
+        setIsLogin(false);
+      }
+    };
     checkIsLogin();
-    getProfileFromFirebase();
   }, [user]);
 
+  React.useEffect(() => {
+    const getProfileFromFirebase = async () => {
+      try {
+        if (fStore && fAuth.currentUser) {
+          const docRef = doc(fStore, 'users', fAuth.currentUser?.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            console.log(docSnap.data());
+            setProfile(docSnap.data());
+          } else {
+            // doc.data() will be undefined in this case
+            console.log('No such document!');
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getProfileFromFirebase();
+  }, []);
+
   return (
-    <SCHeader>
-      <SCHeaderWrapper maxWidth="lg">
-        <SCHeaderGrid container spacing={2}>
-          <Grid2 xs={2}>
-            <SCHeaderLogo src="/images/logo.png" alt="Logo" width={100} height={50} />
-          </Grid2>
-          <Grid2 xs={7}>
-            <SCHeaderForm
-              component="form"
-              sx={{
-                width: 360,
-                height: 46,
-              }}
-            >
-              <SearchDataDisplay title={'data accounts '}>
-                <SCInputWrapper>
-                  <SCHeaderInput />
-                  <Divider orientation="vertical" />
-                  <SearchOutlined sx={{ fontSize: 28 }} color="action" />
-                </SCInputWrapper>
-              </SearchDataDisplay>
-            </SCHeaderForm>
-          </Grid2>
-          <Grid2 xs={3}>
-            <SCHeaderNavigationWrapper>
-              <SCButton variant="outlined" startIcon={<UploadFile />} size="medium" color="secondary">
-                Upload
-              </SCButton>
-              {isLogin ? (
-                <>
-                  <MessageOutlined />
-                  <InboxOutlined />
-                  <SCMoreIconWrapper>
-                    <Tooltip title="Account settings">
-                      <IconButton
-                        onClick={handleOpenMenu}
-                        size="small"
-                        aria-controls={open ? 'account-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                      >
-                        {profile ? (
-                          <Avatar
-                            src={profile.photoURL}
-                            sx={{
+    <>
+      <UploadVideoDialog open={openUploadVideoDialog} onClose={handleCloseUploadVideoDialog} />
+      <SCHeader>
+        <SCHeaderWrapper maxWidth="lg">
+          <SCHeaderGrid container spacing={2}>
+            <Grid2 xs={2}>
+              <SCHeaderLogo src="/images/logo.png" alt="Logo" width={100} height={50} />
+            </Grid2>
+            <Grid2 xs={7}>
+              <SCHeaderForm
+                component="form"
+                sx={{
+                  width: 360,
+                  height: 46,
+                }}
+              >
+                <SearchDataDisplay title={'data accounts '}>
+                  <SCInputWrapper>
+                    <SCHeaderInput />
+                    <Divider orientation="vertical" />
+                    <SearchOutlined sx={{ fontSize: 28 }} color="action" />
+                  </SCInputWrapper>
+                </SearchDataDisplay>
+              </SCHeaderForm>
+            </Grid2>
+            <Grid2 xs={3}>
+              <SCHeaderNavigationWrapper>
+                <SCButton
+                  variant="outlined"
+                  startIcon={<UploadFile />}
+                  size="medium"
+                  color="secondary"
+                  onClick={handleOpenUploadVideoDialog}
+                >
+                  Upload
+                </SCButton>
+                {isLogin ? (
+                  <>
+                    <MessageOutlined />
+                    <InboxOutlined />
+                    <SCMoreIconWrapper>
+                      <Tooltip title="Account settings">
+                        <IconButton
+                          onClick={handleOpenMenu}
+                          size="small"
+                          aria-controls={open ? 'account-menu' : undefined}
+                          aria-haspopup="true"
+                          aria-expanded={open ? 'true' : undefined}
+                        >
+                          {profile ? (
+                            <Avatar
+                              src={profile.photoURL}
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                backgroundSize: 'cover',
+                                WebkitBackgroundSize: 'cover',
+                                objectFit: 'cover',
+                              }}
+                            />
+                          ) : (
+                            <Skeleton variant="circular" width={32} height={32} />
+                          )}
+                        </IconButton>
+                      </Tooltip>
+
+                      <AccountSettingMenu
+                        anchorEl={anchorElMenu}
+                        id="account-menu"
+                        open={open}
+                        onClose={handleCloseMenu}
+                        onClick={handleCloseMenu}
+                        PaperProps={{
+                          elevation: 0,
+                          sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
                               width: 32,
                               height: 32,
-                              backgroundSize: 'cover',
-                              WebkitBackgroundSize: 'cover',
-                              objectFit: 'cover',
-                            }}
-                          />
-                        ) : (
-                          <Skeleton variant="circular" width={32} height={32} />
-                        )}
-                      </IconButton>
-                    </Tooltip>
-
-                    <AccountSettingMenu
-                      anchorEl={anchorElMenu}
-                      id="account-menu"
-                      open={open}
-                      onClose={handleCloseMenu}
-                      onClick={handleCloseMenu}
-                      PaperProps={{
-                        elevation: 0,
-                        sx: {
-                          overflow: 'visible',
-                          filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                          mt: 1.5,
-                          '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
+                              ml: -0.5,
+                              mr: 1,
+                            },
+                            '&:before': {
+                              content: '""',
+                              display: 'block',
+                              position: 'absolute',
+                              top: 0,
+                              right: 14,
+                              width: 10,
+                              height: 10,
+                              bgcolor: 'background.paper',
+                              transform: 'translateY(-50%) rotate(45deg)',
+                              zIndex: 0,
+                            },
                           },
-                          '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            right: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                          },
-                        },
-                      }}
-                      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    />
-                  </SCMoreIconWrapper>
-                </>
-              ) : (
-                <>
-                  <>
-                    <SCButton variant="contained" size="medium" onClick={handleClickOpenLogInDialog} color="info">
-                      Log in
-                    </SCButton>
-                    <LoginDialog open={openLogInDialog} onClose={handleCloseSignInDialog} />
+                        }}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                      />
+                    </SCMoreIconWrapper>
                   </>
-                  <SCMoreIconWrapper>
-                    <Tooltip title="Account settings">
-                      <IconButton
-                        onClick={handleOpenMenu}
-                        size="small"
-                        aria-controls={open ? 'account-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                      >
-                        <MoreVert />
-                      </IconButton>
-                    </Tooltip>
-                    <MoreVertMenu
-                      anchorEl={anchorElMenu}
-                      id="account-menu"
-                      open={open}
-                      onClose={handleCloseMenu}
-                      onClick={handleCloseMenu}
-                      PaperProps={{
-                        elevation: 0,
-                        sx: {
-                          overflow: 'visible',
-                          filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                          mt: 1.5,
-                          '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
+                ) : (
+                  <>
+                    <>
+                      <SCButton variant="contained" size="medium" onClick={handleOpenLogInDialog} color="info">
+                        Log in
+                      </SCButton>
+                      <LoginDialog open={openLogInDialog} onClose={handleCloseSignInDialog} />
+                    </>
+                    <SCMoreIconWrapper>
+                      <Tooltip title="Account settings">
+                        <IconButton
+                          onClick={handleOpenMenu}
+                          size="small"
+                          aria-controls={open ? 'account-menu' : undefined}
+                          aria-haspopup="true"
+                          aria-expanded={open ? 'true' : undefined}
+                        >
+                          <MoreVert />
+                        </IconButton>
+                      </Tooltip>
+                      <MoreVertMenu
+                        anchorEl={anchorElMenu}
+                        id="account-menu"
+                        open={open}
+                        onClose={handleCloseMenu}
+                        onClick={handleCloseMenu}
+                        PaperProps={{
+                          elevation: 0,
+                          sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                              width: 32,
+                              height: 32,
+                              ml: -0.5,
+                              mr: 1,
+                            },
+                            '&:before': {
+                              content: '""',
+                              display: 'block',
+                              position: 'absolute',
+                              top: 0,
+                              right: 14,
+                              width: 10,
+                              height: 10,
+                              bgcolor: 'background.paper',
+                              transform: 'translateY(-50%) rotate(45deg)',
+                              zIndex: 0,
+                            },
                           },
-                          '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            right: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                          },
-                        },
-                      }}
-                      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    />
-                  </SCMoreIconWrapper>
-                </>
-              )}
-            </SCHeaderNavigationWrapper>
-          </Grid2>
-        </SCHeaderGrid>
-      </SCHeaderWrapper>
-    </SCHeader>
+                        }}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                      />
+                    </SCMoreIconWrapper>
+                  </>
+                )}
+              </SCHeaderNavigationWrapper>
+            </Grid2>
+          </SCHeaderGrid>
+        </SCHeaderWrapper>
+      </SCHeader>
+    </>
   );
 };
 

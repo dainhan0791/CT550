@@ -3,6 +3,7 @@ export interface IVideoItem {
   nickname: string;
   desc: string;
   hashtag: string;
+  photoURL: string;
   url: string;
   likes: number;
   commens: number;

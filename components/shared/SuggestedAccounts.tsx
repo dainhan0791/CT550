@@ -7,10 +7,12 @@ import { collection, getDocs, query } from 'firebase/firestore';
 import { fStore } from '../../firebase/init.firebase';
 import { IAccountItem } from '../../interfaces/account.interface';
 import { useAppSelector } from '../../redux/hooks/hooks';
+import { Box, Skeleton } from '@mui/material';
 
 const SCSuggestedAccountsWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 10rem;
 `;
 const SCSuggestedAccountsLabel = styled.p`
   margin: 1rem 1rem 0 1rem;
@@ -50,6 +52,11 @@ const SuggestedAccounts = () => {
   return (
     <SCSuggestedAccountsWrapper>
       <SCSuggestedAccountsLabel>Suggested accounts</SCSuggestedAccountsLabel>
+      {!suggestedAccounts.length && (
+        <Skeleton variant="rounded">
+          <AccountItem name={''} nickname={''} photoURL={''} tick={false} />
+        </Skeleton>
+      )}
       {suggestedAccounts &&
         suggestedAccounts.map((account: IAccountItem) => (
           <AccountItem

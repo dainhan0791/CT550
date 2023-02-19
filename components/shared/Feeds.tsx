@@ -5,6 +5,7 @@ import VideoItem from '../items/VideoItem';
 // firebase
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { fStore } from '../../firebase/init.firebase';
+import { Skeleton } from '@mui/material';
 
 const SCFeedstWrapper = styled.div`
   scroll-snap-type: y mandatory;
@@ -13,7 +14,7 @@ const SCFeedstWrapper = styled.div`
 `;
 
 const Feeds = () => {
-  const [feeds, setFeeds] = React.useState<any>();
+  const [feeds, setFeeds] = React.useState<any>([]);
   const [maxResults, setMaxResults] = React.useState(10);
 
   React.useEffect(() => {
@@ -39,6 +40,21 @@ const Feeds = () => {
 
   return (
     <SCFeedstWrapper id="targetVideo">
+      {!feeds.length && (
+        <Skeleton variant="rounded">
+          <VideoItem
+            name={''}
+            nickname={''}
+            desc={''}
+            hashtag={''}
+            photoURL={''}
+            url={''}
+            likes={0}
+            commens={0}
+            shares={0}
+          />
+        </Skeleton>
+      )}
       {feeds && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}
     </SCFeedstWrapper>
   );

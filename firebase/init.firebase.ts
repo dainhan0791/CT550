@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage, ref } from 'firebase/storage';
 
 const FirebaseCredentials = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,8 +14,10 @@ const FirebaseCredentials = {
 };
 
 const app = initializeApp(FirebaseCredentials);
+// Create a root reference
+const fStorage = getStorage();
 
 const fAuth = getAuth(app);
 const fStore = getFirestore();
 
-export { app, fAuth, fStore };
+export { app, fAuth, fStore, fStorage };

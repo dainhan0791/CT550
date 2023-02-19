@@ -9,23 +9,24 @@ import styled from 'styled-components';
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
 import { LoginValidationSchema } from '../../validation/login.validation';
-import MainSnackbar from '../snackbars/MainSnackbar';
 // Redux
 import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
 import { setUser } from '../../redux/slices/auth.slice';
 // Firebase
 import { fAuth } from '../../firebase/init.firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
-import { LOGIN_TITLE, VERTIFY_TITLE } from '../../constants/login.constant';
 import {
+  LOGIN_TITLE,
+  OTP_FIELD_ERROR,
   SEND_SMS_ERROR,
   SEND_SMS_SUCCESS,
-  SNACKBAR_ERROR,
-  SNACKBAR_SUCESS,
-  VERTIFY_SMS_ERROR,
-  VERTIFY_SMS_SUCCESS,
-} from '../../constants/snackbar.constant';
+  VERTIFY_OTP_SUCCESS,
+  VERTIFY_OTP_ERROR,
+  VERTIFY_TITLE,
+} from '../../constants/login.constant';
+
 import { saveIdTokenToLocalStorage } from '../../utils/auth.localstorage';
+import { useSnackbar } from 'notistack';
 
 declare global {
   interface Window {
@@ -38,6 +39,7 @@ declare global {
 
 const LogInDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
+  const { enqueueSnackbar } = useSnackbar();
 
   const dispatch = useAppDispatch();
 
@@ -45,40 +47,6 @@ const LogInDialog = (props: IDialogProps) => {
   const [otp, setOtp] = React.useState<string>('');
 
   const [isOpenVertify, setIsOpenVertify] = React.useState<boolean>(false);
-  const [isOtpError, setOtpError] = React.useState<boolean>(false);
-
-  // handle open snackbar
-  const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false);
-  const [messageSnackbar, setMessageSnackbar] = React.useState<string>('');
-  const [severitySnackbar, setSeveritySnackbar] = React.useState<string>('');
-
-  const handleOpenSnackbar = () => {
-    setOpenSnackbar(true);
-  };
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
-  const openSnackbarSendSMSSuccess = () => {
-    setMessageSnackbar(SEND_SMS_SUCCESS);
-    handleOpenSnackbar();
-    setSeveritySnackbar(SNACKBAR_SUCESS);
-  };
-  const openSnackbarSendSMSError = () => {
-    setMessageSnackbar(SEND_SMS_ERROR);
-    handleOpenSnackbar();
-    setSeveritySnackbar(SNACKBAR_ERROR);
-  };
-  const openSnackbarVertifyOTPSuccess = () => {
-    setMessageSnackbar(VERTIFY_SMS_SUCCESS);
-    handleOpenSnackbar();
-    setSeveritySnackbar(SNACKBAR_SUCESS);
-  };
-  const openSnackbarVertifyOTPError = () => {
-    setMessageSnackbar(VERTIFY_SMS_ERROR);
-    handleOpenSnackbar();
-    setSeveritySnackbar(SNACKBAR_ERROR);
-  };
 
   const handleCloseLoginDialog = () => {
     onClose && onClose();
@@ -99,10 +67,12 @@ const LogInDialog = (props: IDialogProps) => {
       {
         size: 'invisible',
         callback: (response: any) => {
+          enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
           // reCAPTCHA solved, allow signInWithPhoneNumber.
         },
         'expired-callback': () => {
           // Response expired. Ask user to solve reCAPTCHA again.
+          enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
         },
       },
       fAuth,
@@ -115,10 +85,13 @@ const LogInDialog = (props: IDialogProps) => {
         {
           size: 'invisible',
           callback: (response: any) => {
+            enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'default' });
+
             // reCAPTCHA solved, allow signInWithPhoneNumber.
           },
           'expired-callback': () => {
             // Response expired. Ask user to solve reCAPTCHA again.
+            enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'default' });
           },
         },
         fAuth,
@@ -139,52 +112,52 @@ const LogInDialog = (props: IDialogProps) => {
               // SMS sent. Prompt user to type the code from the message, then sign the
               // user in with confirmationResult.confirm(code).
               window.confirmationResult = confirmationResult;
-              openSnackbarSendSMSSuccess();
               // Open vertify otp
+              enqueueSnackbar(SEND_SMS_SUCCESS, { variant: 'success' });
+
               setIsOpenVertify(true);
             })
             .catch((error) => {
               // Error; SMS not sent
+              enqueueSnackbar(SEND_SMS_ERROR + error.message, { variant: 'success' });
+
               console.log(error);
-              openSnackbarSendSMSError();
             });
         } else {
+          enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
           reGenerateRecaptcha();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log(error);
-        reGenerateRecaptcha();
+        enqueueSnackbar(SEND_SMS_ERROR + error.message, { variant: 'error' });
 
-        // Open Snackbar
-        openSnackbarSendSMSError();
+        reGenerateRecaptcha();
       }
     }
   };
 
   const vertifySMS = async () => {
     if (otp.length < 6) {
-      setOtpError(true);
+      enqueueSnackbar(OTP_FIELD_ERROR, { variant: 'warning' });
+      return;
     }
     try {
       let confirmationResult = window.confirmationResult;
       const UserCredentialImpl = await confirmationResult.confirm(otp);
       if (UserCredentialImpl) {
-        setOtpError(false);
+        enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
 
         dispatch(setUser(UserCredentialImpl));
         saveIdTokenToLocalStorage(UserCredentialImpl._tokenResponse.idToken);
-
-        openSnackbarVertifyOTPSuccess();
-        setTimeout(handleCloseLoginDialog, 2000);
+        handleCloseLoginDialog();
       } else {
-        setOtpError(true);
-        openSnackbarVertifyOTPError();
+        enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'error' });
+
         reGenerateRecaptcha();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      setOtpError(true);
-      openSnackbarVertifyOTPError();
+      enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'error' });
 
       reGenerateRecaptcha();
     }
@@ -201,12 +174,6 @@ const LogInDialog = (props: IDialogProps) => {
   return (
     <>
       <Dialog onClose={handleCloseLoginDialog} open={open}>
-        <MainSnackbar
-          open={openSnackbar}
-          close={handleCloseSnackbar}
-          message={messageSnackbar}
-          severity={severitySnackbar}
-        />
         <DialogTitle textAlign={'center'}>{!isOpenVertify ? LOGIN_TITLE : VERTIFY_TITLE}</DialogTitle>
         <List sx={{ pt: 0 }}>
           <SCForm onSubmit={(event) => handleSubmit(event)}>
@@ -234,7 +201,6 @@ const LogInDialog = (props: IDialogProps) => {
                     outline: 'none',
                   }}
                 />
-                <SCError>{isOtpError && 'Invalid otp'}</SCError>
                 <SCButton variant="contained" color="secondary" onClick={backToSendSMS}>
                   Back
                 </SCButton>
