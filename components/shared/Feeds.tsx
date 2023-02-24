@@ -43,15 +43,16 @@ const Feeds = () => {
       {!feeds.length && (
         <Skeleton variant="rounded">
           <VideoItem
+            uid=""
             name={''}
             nickname={''}
             desc={''}
             hashtag={''}
             photoURL={''}
             url={''}
-            likes={0}
             commens={0}
             shares={0}
+            likes={0}
           />
         </Skeleton>
       )}

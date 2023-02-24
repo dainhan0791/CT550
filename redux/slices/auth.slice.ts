@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define the initial state using that type
 const initialState: IAuth = {
-  user: {},
+  accessToken: '',
 };
 
 export const authSlice = createSlice({
@@ -11,15 +11,15 @@ export const authSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<object>) => {
-      state.user = action.payload;
+    setAccessToken: (state, action: PayloadAction<IAuth>) => {
+      state.accessToken = action.payload.accessToken;
     },
-    clearUser: (state) => {
-      state.user = {};
+    removeAccessToken: (state) => {
+      state.accessToken = '';
     },
   },
 });
 
-export const { setUser, clearUser } = authSlice.actions;
+export const { setAccessToken, removeAccessToken } = authSlice.actions;
 
 export default authSlice.reducer;

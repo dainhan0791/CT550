@@ -54,18 +54,18 @@ const SuggestedAccounts = () => {
       <SCSuggestedAccountsLabel>Suggested accounts</SCSuggestedAccountsLabel>
       {!suggestedAccounts.length && (
         <Skeleton variant="rounded">
-          <AccountItem name={''} nickname={''} photoURL={''} tick={false} />
+          <AccountItem name={''} nickname={''} photoURL={''} tick={false} isvideo={false} />
         </Skeleton>
       )}
       {suggestedAccounts &&
         suggestedAccounts.map((account: IAccountItem) => (
           <AccountItem
-            isVideo={false}
             key={account.uid}
             name={account.name}
             nickname={account.nickname}
             photoURL={account.photoURL}
             tick={account.tick}
+            isvideo={false}
           />
         ))}
       <SCSeeAll>See All</SCSeeAll>

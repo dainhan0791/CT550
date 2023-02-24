@@ -1,15 +1,14 @@
 import { Avatar, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
 import React from 'react';
 import { useAppDispatch } from '../../redux/hooks/hooks';
-import { clearUser } from '../../redux/slices/auth.slice';
+import { removeAccessToken } from '../../redux/slices/auth.slice';
 import SettingsUserDialog from '../dialogs/SettingsUserDialog';
 import { handleSignOutFirebase } from '../../firebase/utils.firebase';
-import { removeIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { Logout } from '@mui/icons-material';
+import { Logout, Settings } from '@mui/icons-material';
 import styled from 'styled-components';
 import { useSnackbar } from 'notistack';
 import { LOGOUT_SUCCESS, LOGOUT_ERROR } from '../../constants/login.constant';
+import { removeAccessTokenFromLocalStorage } from '../../utils/auth.localstorage';
 
 const AccountSettingMenu = ({
   anchorEl,
@@ -43,8 +42,8 @@ const AccountSettingMenu = ({
   const handleLogout = async () => {
     try {
       enqueueSnackbar(LOGOUT_SUCCESS, { variant: 'success' });
-      dispatch(clearUser());
-      removeIdTokenFromLocalStorage();
+      dispatch(removeAccessToken());
+      removeAccessTokenFromLocalStorage();
       await handleSignOutFirebase();
     } catch (error) {
       console.log(error);
@@ -66,7 +65,10 @@ const AccountSettingMenu = ({
         anchorOrigin={anchorOrigin}
       >
         <SCMenuItem onClick={handleOpenSettingsUserDialog}>
-          <Avatar /> Settings
+          <ListItemIcon>
+            <Settings />
+          </ListItemIcon>
+          Settings
         </SCMenuItem>
 
         <Divider />

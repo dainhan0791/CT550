@@ -44,7 +44,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
   const [file, setFile] = React.useState<any>();
   const [process, setProcess] = React.useState<number>(0);
 
-  const handleCloseLoginDialog = () => {
+  const handleCloseUploadVideoDialog = () => {
     onClose && onClose();
   };
 
@@ -60,6 +60,11 @@ const UploadVideoDialog = (props: IDialogProps) => {
       setFile(file);
     }
   };
+  React.useEffect(() => {
+    return () => {
+      file && URL.revokeObjectURL(file.preview);
+    };
+  }, [file]);
 
   React.useEffect(() => {
     const getProfileFromFirebase = async () => {
@@ -77,12 +82,6 @@ const UploadVideoDialog = (props: IDialogProps) => {
     };
     getProfileFromFirebase();
   }, []);
-
-  React.useEffect(() => {
-    return () => {
-      file && URL.revokeObjectURL(file.preview);
-    };
-  }, [file]);
 
   const onSubmit = async () => {
     if (!file) {
@@ -119,7 +118,6 @@ const UploadVideoDialog = (props: IDialogProps) => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-              console.log('File available at', downloadURL);
               if (downloadURL && fAuth.currentUser && profile) {
                 await setDoc(doc(fStore, 'videos', fAuth.currentUser.uid + Date.now()), {
                   uid: fAuth.currentUser.uid,
@@ -130,10 +128,12 @@ const UploadVideoDialog = (props: IDialogProps) => {
                   hashtag: values.hashtag,
                   url: downloadURL,
                 });
+
                 enqueueSnackbar(UPLOAD_VIDEO_SUCCESS, { variant: 'success' });
-                handleCloseLoginDialog();
+                handleCloseUploadVideoDialog();
               } else {
                 enqueueSnackbar(UPLOAD_VIDEO_FAILED, { variant: 'error' });
+                handleCloseUploadVideoDialog();
               }
             });
           },
@@ -155,7 +155,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
 
   return (
     <>
-      <Dialog onClose={handleCloseLoginDialog} open={open}>
+      <Dialog onClose={handleCloseUploadVideoDialog} open={open}>
         {process ? (
           <>
             Uploading

@@ -9,7 +9,6 @@ import styled from 'styled-components';
 import Layout from '../components/shared/Layout';
 import LeftSideBar from '../components/shared/LeftNavBar';
 import Feeds from '../components/shared/Feeds';
-import { useSnackbar } from 'notistack';
 import React from 'react';
 
 const SCBodyWrapper = styled(Container)`

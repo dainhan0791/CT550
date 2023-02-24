@@ -1,8 +1,8 @@
-export const LOGIN_TITLE = 'Login with phone number';
+export const LOGIN_TITLE = 'Phone number';
 export const VERTIFY_TITLE = 'Verify to continue';
 
 export const SEND_SMS_SUCCESS = 'SMS sent';
-export const SEND_SMS_ERROR = 'SMS not sent';
+export const SEND_SMS_ERROR = 'SMS not sent, please try again';
 
 export const OTP_FIELD_ERROR = 'Please enter 6 number';
 

@@ -1,20 +1,20 @@
 import React from 'react';
-import { Dialog, DialogTitle, List, TextField, Button } from '@mui/material';
+import { Dialog, DialogTitle, List, Button, Grid } from '@mui/material';
+
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import OtpInput from 'react-otp-input';
 import { useFormik } from 'formik';
 import styled from 'styled-components';
-
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
 import { LoginValidationSchema } from '../../validation/login.validation';
 // Redux
 import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
-import { setUser } from '../../redux/slices/auth.slice';
+
 // Firebase
-import { fAuth } from '../../firebase/init.firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import {
   LOGIN_TITLE,
   OTP_FIELD_ERROR,
@@ -25,8 +25,9 @@ import {
   VERTIFY_TITLE,
 } from '../../constants/login.constant';
 
-import { saveIdTokenToLocalStorage } from '../../utils/auth.localstorage';
 import { useSnackbar } from 'notistack';
+import { saveAccessTokenToLocalStorage } from '../../utils/auth.localstorage';
+import { setAccessToken } from '../../redux/slices/auth.slice';
 
 declare global {
   interface Window {
@@ -36,6 +37,49 @@ declare global {
     grecaptcha: any;
   }
 }
+
+const SCDialogTitle = styled(DialogTitle)`
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-family: 'Gambetta', serif;
+  transition: 700ms ease;
+  font-variation-settings: 'wght' 311;
+  margin-bottom: 0.8rem;
+  color: black;
+  outline: none;
+  text-align: center;
+  margin-bottom: 0;
+`;
+
+const SCForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 8rem;
+  padding: 1rem;
+`;
+const SCPhoneInput = styled(PhoneInput)`
+  width: 240px;
+  > div {
+    line-height: 30px !important;
+  }
+  > input {
+    line-height: 30px !important;
+  }
+`;
+const SCOtpInput = styled(OtpInput)`
+  font-size: 1.8rem;
+  > input {
+    border-radius: 50%;
+  }
+`;
+
+const SCButton = styled(Button)`
+  width: 100%;
+  margin-top: 1rem;
+`;
 
 const LogInDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
@@ -67,12 +111,12 @@ const LogInDialog = (props: IDialogProps) => {
       {
         size: 'invisible',
         callback: (response: any) => {
-          enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
+          // enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
           // reCAPTCHA solved, allow signInWithPhoneNumber.
         },
         'expired-callback': () => {
           // Response expired. Ask user to solve reCAPTCHA again.
-          enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
+          // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
         },
       },
       fAuth,
@@ -85,13 +129,12 @@ const LogInDialog = (props: IDialogProps) => {
         {
           size: 'invisible',
           callback: (response: any) => {
-            enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'default' });
-
+            // enqueueSnackbar('Allow signInWithPhoneNumber', { variant: 'default' });
             // reCAPTCHA solved, allow signInWithPhoneNumber.
           },
           'expired-callback': () => {
             // Response expired. Ask user to solve reCAPTCHA again.
-            enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'default' });
+            // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'warning' });
           },
         },
         fAuth,
@@ -119,17 +162,16 @@ const LogInDialog = (props: IDialogProps) => {
             })
             .catch((error) => {
               // Error; SMS not sent
-              enqueueSnackbar(SEND_SMS_ERROR + error.message, { variant: 'success' });
+              enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
 
               console.log(error);
             });
         } else {
           enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
-          reGenerateRecaptcha();
         }
       } catch (error: any) {
         console.log(error);
-        enqueueSnackbar(SEND_SMS_ERROR + error.message, { variant: 'error' });
+        enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
 
         reGenerateRecaptcha();
       }
@@ -145,19 +187,20 @@ const LogInDialog = (props: IDialogProps) => {
       let confirmationResult = window.confirmationResult;
       const UserCredentialImpl = await confirmationResult.confirm(otp);
       if (UserCredentialImpl) {
-        enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
-
-        dispatch(setUser(UserCredentialImpl));
-        saveIdTokenToLocalStorage(UserCredentialImpl._tokenResponse.idToken);
-        handleCloseLoginDialog();
+        if (fStore) {
+          enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
+          dispatch(setAccessToken({ accessToken: UserCredentialImpl.user.accessToken }));
+          saveAccessTokenToLocalStorage({ accessToken: UserCredentialImpl.user.accessToken });
+          handleCloseLoginDialog();
+        }
       } else {
-        enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'error' });
+        enqueueSnackbar(VERTIFY_OTP_ERROR, { variant: 'error' });
 
         reGenerateRecaptcha();
       }
     } catch (error: any) {
       console.log(error);
-      enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'error' });
+      enqueueSnackbar(VERTIFY_OTP_ERROR, { variant: 'error' });
 
       reGenerateRecaptcha();
     }
@@ -174,7 +217,7 @@ const LogInDialog = (props: IDialogProps) => {
   return (
     <>
       <Dialog onClose={handleCloseLoginDialog} open={open}>
-        <DialogTitle textAlign={'center'}>{!isOpenVertify ? LOGIN_TITLE : VERTIFY_TITLE}</DialogTitle>
+        <SCDialogTitle>{!isOpenVertify ? LOGIN_TITLE : VERTIFY_TITLE}</SCDialogTitle>
         <List sx={{ pt: 0 }}>
           <SCForm onSubmit={(event) => handleSubmit(event)}>
             {isOpenVertify ? (
@@ -201,7 +244,7 @@ const LogInDialog = (props: IDialogProps) => {
                     outline: 'none',
                   }}
                 />
-                <SCButton variant="contained" color="secondary" onClick={backToSendSMS}>
+                <SCButton variant="contained" color="inherit" onClick={backToSendSMS}>
                   Back
                 </SCButton>
                 <SCButton variant="contained" color="success" onClick={vertifySMS}>
@@ -217,30 +260,9 @@ const LogInDialog = (props: IDialogProps) => {
                   value={phoneNumber}
                   onChange={(number: any) => setPhoneNumber(number)}
                 />
-                {/* <SCError></SCError> */}
-                {/* <SCTextField
-                  type={'password'}
-                  id="password"
-                  label="password"
-                  variant="outlined"
-                  size="small"
-                  value={values.password}
-                  onChange={handleChange}
-                />
-                <SCError>{submited && !!errors.password && errors.password}</SCError>
-                <SCTextField
-                  type={'password'}
-                  id="confirmPassword"
-                  label="confirmPassword"
-                  variant="outlined"
-                  size="small"
-                  value={values.confirmPassword}
-                  onChange={handleChange}
-                />
-                <SCError>{submited && !!errors.confirmPassword && errors.confirmPassword}</SCError> */}
-                {/* <SCError>{submited && !errors.password && !errors.confirmPassword && 'To many requests SMS'}</SCError> */}
-                <SCButton type="submit" variant="contained">
-                  Submit
+
+                <SCButton type="submit" color="info" variant="contained">
+                  Log in
                 </SCButton>
               </>
             )}
@@ -251,46 +273,5 @@ const LogInDialog = (props: IDialogProps) => {
     </>
   );
 };
-
-const SCForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 10rem;
-  padding: 1rem;
-`;
-const SCPhoneInput = styled(PhoneInput)`
-  width: 240px;
-  > div {
-    line-height: 30px !important;
-  }
-  > input {
-    line-height: 30px !important;
-  }
-  margin-bottom: 1rem;
-`;
-const SCOtpInput = styled(OtpInput)`
-  font-size: 1.8rem;
-  > input {
-    border-radius: 50%;
-  }
-`;
-const SCTextField = styled(TextField)`
-  width: 240px;
-  margin: 1rem 0;
-`;
-const SCButton = styled(Button)`
-  width: 100%;
-  margin-top: 1rem;
-`;
-const SCError = styled.p`
-  color: red;
-  text-align: center;
-  width: 100%;
-  margin: 0.1rem 0;
-  line-height: 1rem;
-`;
 
 export default LogInDialog;

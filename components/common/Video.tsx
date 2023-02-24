@@ -94,14 +94,14 @@ const Video = (video: IVideo) => {
         setPlaying(false);
       }
     }
-  }, [isVisibile, playing]);
+  }, [isVisibile]);
 
   const handleVideo = () => {
     if (playing && videoRef) {
-      videoRef.current.play();
+      videoRef.current.pause();
       setPlaying(false);
     } else {
-      videoRef.current.pause();
+      videoRef.current.play();
       setPlaying(true);
     }
   };

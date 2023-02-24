@@ -1,9 +1,9 @@
 export interface IIsVideoProps {
-  isVideo?: boolean;
+  isvideo: boolean;
 }
 
 export interface IAuth {
-  user: object;
+  accessToken: string;
 }
 
 export interface IAccountItem extends IIsVideoProps {
@@ -13,4 +13,5 @@ export interface IAccountItem extends IIsVideoProps {
   photoURL: string;
   desc?: string;
   tick: boolean;
+  handleFollow?: Function;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Image from 'next/image';
 
@@ -9,20 +9,19 @@ import { Button, Box, Container, IconButton, Tooltip, Avatar, Divider, Skeleton 
 import Grid2 from '@mui/material/Unstable_Grid2';
 
 // @mui icons
-import { UploadFile, MoreVert, MessageOutlined, InboxOutlined, SearchOutlined } from '@mui/icons-material';
+import { Add, MoreVert, MessageOutlined, InboxOutlined, SearchOutlined } from '@mui/icons-material';
 import LoginDialog from '../dialogs/LoginDialog';
 import SearchDataDisplay from '../data/SearchDataDisplay';
 import AccountSettingMenu from '../menus/AccountSettingMenu';
 import MoreVertMenu from '../menus/MoreVertMenu';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
-import { getIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
-import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getAccessTokenFromLocalStorage } from '../../utils/auth.localstorage';
 
 // firebase
 import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore';
-import { IAccountItem } from '../../interfaces/account.interface';
 import UploadVideoDialog from '../dialogs/UploadVideoDialog';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const SCHeader = styled.div`
   display: -webkit-box;
@@ -115,17 +114,21 @@ const SCButton = styled(Button)`
   width: ${(props) => (props.startIcon ? '110px' : '100px')};
 `;
 
+const SCLoginButton = styled(SCButton)`
+  background-color: rgba(254, 44, 85, 1) !important;
+`;
+
 const SCMoreIconWrapper = styled.div``;
 
 const Header = () => {
-  const user = useAppSelector((state) => state.auth.user);
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
 
   // handle header menu
   const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorElMenu);
 
   // handle isLogin
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = React.useState(false);
   // profile
   const [profile, setProfile] = React.useState<any>();
 
@@ -138,6 +141,7 @@ const Header = () => {
   };
   // handle login-dialog
   const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
+
   const handleOpenLogInDialog = () => {
     setOpenLogInDialog(true);
   };
@@ -148,8 +152,13 @@ const Header = () => {
 
   // handle open upload dialog
   const [openUploadVideoDialog, setOpenUploadVideoDialog] = React.useState(false);
+
   const handleOpenUploadVideoDialog = () => {
-    setOpenUploadVideoDialog(true);
+    if (accessToken) {
+      setOpenUploadVideoDialog(true);
+    } else {
+      handleOpenLogInDialog();
+    }
   };
 
   const handleCloseUploadVideoDialog = () => {
@@ -158,36 +167,48 @@ const Header = () => {
 
   React.useEffect(() => {
     const checkIsLogin = () => {
-      if (!!getIdTokenFromLocalStorage()) {
+      if (getAccessTokenFromLocalStorage()) {
         setIsLogin(true);
       } else {
         setIsLogin(false);
       }
     };
     checkIsLogin();
-  }, [user]);
+  }, [accessToken]);
 
   React.useEffect(() => {
-    const getProfileFromFirebase = async () => {
-      try {
-        if (fStore && fAuth.currentUser) {
-          const docRef = doc(fStore, 'users', fAuth.currentUser?.uid);
-          const docSnap = await getDoc(docRef);
+    onAuthStateChanged(fAuth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
 
-          if (docSnap.exists()) {
-            console.log(docSnap.data());
-            setProfile(docSnap.data());
-          } else {
-            // doc.data() will be undefined in this case
-            console.log('No such document!');
+        const getProfileFromFirebase = async () => {
+          try {
+            if (fStore) {
+              console.log('getProfile');
+              const docRef = doc(fStore, 'users', uid);
+
+              const docSnap = await getDoc(docRef);
+
+              if (docSnap.exists()) {
+                setProfile(docSnap.data());
+              } else {
+                // doc.data() will be undefined in this case
+                console.log('No such document!');
+              }
+            }
+          } catch (error) {
+            console.log(error);
           }
-        }
-      } catch (error) {
-        console.log(error);
+        };
+        getProfileFromFirebase();
+      } else {
+        // User is signed out
+        // ...
       }
-    };
-    getProfileFromFirebase();
-  }, []);
+    });
+  }, [accessToken]);
 
   return (
     <>
@@ -217,13 +238,7 @@ const Header = () => {
             </Grid2>
             <Grid2 xs={3}>
               <SCHeaderNavigationWrapper>
-                <SCButton
-                  variant="outlined"
-                  startIcon={<UploadFile />}
-                  size="medium"
-                  color="secondary"
-                  onClick={handleOpenUploadVideoDialog}
-                >
+                <SCButton variant="outlined" startIcon={<Add />} size="medium" onClick={handleOpenUploadVideoDialog}>
                   Upload
                 </SCButton>
                 {isLogin ? (
@@ -241,7 +256,7 @@ const Header = () => {
                         >
                           {profile ? (
                             <Avatar
-                              src={profile.photoURL}
+                              src={profile?.photoURL}
                               sx={{
                                 width: 32,
                                 height: 32,
@@ -296,9 +311,9 @@ const Header = () => {
                 ) : (
                   <>
                     <>
-                      <SCButton variant="contained" size="medium" onClick={handleOpenLogInDialog} color="info">
+                      <SCLoginButton variant="contained" size="medium" onClick={handleOpenLogInDialog}>
                         Log in
-                      </SCButton>
+                      </SCLoginButton>
                       <LoginDialog open={openLogInDialog} onClose={handleCloseSignInDialog} />
                     </>
                     <SCMoreIconWrapper>

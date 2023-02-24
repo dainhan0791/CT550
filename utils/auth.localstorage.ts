@@ -1,17 +1,15 @@
-// export const saveUserToLocalStorage = (user: object) => {
-//   return window.localStorage.setItem('user', JSON.stringify(user));
-// };
-// export const getUserFromLocalStorage = () => {
-//   return window.localStorage.getItem('user');
-// };
+import { IAuth } from './../interfaces/account.interface';
 
-export const saveIdTokenToLocalStorage = (idToken: string) => {
-  return window.localStorage.setItem('idToken', idToken);
+export const saveAccessTokenToLocalStorage = ({ accessToken }: IAuth) => {
+  if (accessToken) {
+    window.localStorage.setItem('accessToken', JSON.stringify(accessToken));
+  }
 };
 
-export const getIdTokenFromLocalStorage = () => {
-  return window.localStorage.getItem('idToken') || null;
+export const getAccessTokenFromLocalStorage = () => {
+  return window.localStorage.getItem('accessToken') || null;
 };
-export const removeIdTokenFromLocalStorage = () => {
-  return window.localStorage.removeItem('idToken');
+
+export const removeAccessTokenFromLocalStorage = () => {
+  window.localStorage.removeItem('accessToken');
 };

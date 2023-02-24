@@ -5,6 +5,11 @@ import AccountItem from './AccountItem';
 import Video from '../common/Video';
 import { IVideoItem } from '../../interfaces/video.interface';
 
+// firebase
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { useSnackbar } from 'notistack';
+
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
   height: 650px;
@@ -14,16 +19,39 @@ const SCVideoItemWrapper = styled.div`
 `;
 
 const VideoItem = (props: IVideoItem) => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleFollow = async () => {
+    try {
+      if (fStore && fAuth.currentUser && props) {
+        const userRef = doc(fStore, 'users', props.uid);
+        if (props.uid !== fAuth.currentUser.uid) {
+          await updateDoc(userRef, {
+            followes: arrayUnion(fAuth.currentUser.uid),
+          });
+          enqueueSnackbar(`Follow ${props.name}`, { variant: 'success' });
+        } else {
+          alert('no follow chinh minh');
+          enqueueSnackbar('Follow failed', { variant: 'error' });
+        }
+      }
+    } catch (error) {
+      enqueueSnackbar('Follow failed', { variant: 'error' });
+
+      console.log(error);
+    }
+  };
   return (
     <>
       <SCVideoItemWrapper id="videoItem">
         <AccountItem
-          isVideo={true}
+          isvideo={true}
           name={props.name}
           nickname={props.nickname}
           desc={props.desc}
           tick={false}
           photoURL={props.photoURL}
+          handleFollow={handleFollow}
         />
         <Video
           hashtag={props.hashtag}

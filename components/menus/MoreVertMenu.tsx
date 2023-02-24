@@ -1,5 +1,5 @@
 import { Avatar, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
-import { UploadFile } from '@mui/icons-material';
+import { Language } from '@mui/icons-material';
 import React from 'react';
 
 const MoreVertMenu = ({
@@ -33,10 +33,11 @@ const MoreVertMenu = ({
       anchorOrigin={anchorOrigin}
     >
       <MenuItem>
-        <Avatar /> Theme
+        <ListItemIcon>
+          <Language />
+        </ListItemIcon>
+        Language
       </MenuItem>
-
-      <Divider />
     </Menu>
   );
 };

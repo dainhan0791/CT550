@@ -34,12 +34,12 @@ const SCCheckIcon = styled(Check)`
 `;
 
 const SCAvatar = styled(Avatar)<IIsVideoProps>`
-  width: ${(props) => (props.isVideo ? '3.4rem' : '2.4rem')};
-  height: ${(props) => (props.isVideo ? '3.4rem' : '2.4rem')};
+  width: ${(props) => (props.isvideo ? '3.4rem' : '2.4rem')};
+  height: ${(props) => (props.isvideo ? '3.4rem' : '2.4rem')};
 `;
 
 const SCListBodyItem = styled.div<IIsVideoProps>`
-  margin-left: ${(props) => (props.isVideo ? '1rem' : ' 0rem')};
+  margin-left: ${(props) => (props.isvideo ? '1rem' : ' 0rem')};
 `;
 
 const SCNameWrapper = styled.div`
@@ -98,22 +98,27 @@ const SCButtonFollow = styled.button`
 1;
 
 const AccountItem = (props: IAccountItem) => {
+  const onHandleFollow = () => {
+    if (props.handleFollow) {
+      props.handleFollow();
+    }
+  };
   return (
     <SCAccountItemWrapper>
       <List>
         <ListItem alignItems="flex-start">
           <ListItemAvatar sx={{}}>
-            <SCAvatar src={props.photoURL} isVideo={props.isVideo} />
+            <SCAvatar src={props.photoURL} isvideo={props.isvideo && props.isvideo} />
           </ListItemAvatar>
-          <SCListBodyItem isVideo={props.isVideo}>
-            {props.isVideo ? (
+          <SCListBodyItem isvideo={props.isvideo && props.isvideo}>
+            {props.isvideo ? (
               <>
                 <SCAccountHeadItem>
                   <SCNameWrapper>
                     <SCName>{props.name}</SCName>
                     <SCSubName>{props.nickname}</SCSubName>
                   </SCNameWrapper>
-                  <SCButtonFollow>Follow</SCButtonFollow>
+                  <SCButtonFollow onClick={onHandleFollow}>Follow</SCButtonFollow>
                 </SCAccountHeadItem>
                 <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
               </>

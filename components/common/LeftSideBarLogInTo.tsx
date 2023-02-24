@@ -2,11 +2,11 @@ import { Button } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../../redux/hooks/hooks';
-import { getIdTokenFromLocalStorage } from '../../utils/auth.localstorage';
+import { getAccessTokenFromLocalStorage } from '../../utils/auth.localstorage';
 import LoginDialog from '../dialogs/LoginDialog';
 
 const LeftSideBarLogInTo = () => {
-  const user = useAppSelector((state) => state.auth.user);
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
   const [isLogin, setIsLogin] = React.useState<boolean>(false);
   const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
 
@@ -17,17 +17,16 @@ const LeftSideBarLogInTo = () => {
   const handleCloseSignInDialog = () => {
     setOpenLogInDialog(false);
   };
-  const checkIsLogin = () => {
-    if (!!getIdTokenFromLocalStorage()) {
-      setIsLogin(true);
-    } else {
-      setIsLogin(false);
-    }
-  };
-
   React.useEffect(() => {
+    const checkIsLogin = () => {
+      if (!!getAccessTokenFromLocalStorage()) {
+        setIsLogin(true);
+      } else {
+        setIsLogin(false);
+      }
+    };
     checkIsLogin();
-  }, [user]);
+  }, [accessToken]);
 
   return (
     <>

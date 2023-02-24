@@ -1,4 +1,5 @@
 export interface IVideoItem {
+  uid: string;
   name: string;
   nickname: string;
   desc: string;

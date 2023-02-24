@@ -1,24 +1,25 @@
 import React from 'react';
-import { Dialog, DialogTitle, List, TextField, Button, Avatar } from '@mui/material';
 import 'react-phone-number-input/style.css';
-import PhoneInput from 'react-phone-number-input';
+import { Dialog, DialogTitle, List, TextField, Button, Avatar } from '@mui/material';
+import { Image, Update } from '@mui/icons-material';
+
 import { useFormik } from 'formik';
 import styled from 'styled-components';
 
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
-import { LoginValidationSchema } from '../../validation/login.validation';
 // Redux
 import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
-import { setUser } from '../../redux/slices/auth.slice';
 // Firebase
 import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
 import { ProfileValidationSchema } from '../../validation/profile.validation';
 
 import { doc, setDoc } from 'firebase/firestore';
-import { useSnackbar, VariantType } from 'notistack';
+import { useSnackbar } from 'notistack';
 import { NO_SELECT_AVATAR_FILE, UPLOAD_PROFILE_ERROR, UPLOAD_PROFILE_SUCCESS } from '../../constants/upload';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { removeAccents } from '../../utils/display';
+import AlertError from '../common/AlertError';
 declare global {
   interface Window {
     recaptchaVerifier: any;
@@ -27,6 +28,45 @@ declare global {
     grecaptcha: any;
   }
 }
+const SCForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 10rem;
+  padding: 1rem;
+`;
+
+const SCTextField = styled(TextField)`
+  width: 240px;
+  margin-bottom: 1rem;
+`;
+const SCButton = styled(Button)`
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+`;
+
+const SCUpload = styled(SCButton)`
+  margin-bottom: 1rem;
+`;
+const SCAvatarPreview = styled(Avatar)`
+  margin-top: 1rem !important;
+`;
+
+const SCDialogTitle = styled(DialogTitle)`
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-family: 'Gambetta', serif;
+  transition: 700ms ease;
+  font-variation-settings: 'wght' 311;
+  margin-bottom: 0.8rem;
+  color: black;
+  outline: none;
+  text-align: center;
+  margin-bottom: 0;
+`;
 
 const SettingsUserDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
@@ -94,13 +134,15 @@ const SettingsUserDialog = (props: IDialogProps) => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-              console.log('File available at', downloadURL);
               if (downloadURL && fAuth.currentUser) {
                 await setDoc(doc(fStore, 'users', fAuth.currentUser.uid), {
                   uid: fAuth.currentUser.uid,
                   name: values.name,
                   nickname: values.nickname,
+                  noAccentName: removeAccents(`${values.name} ${values.nickname}`),
                   photoURL: downloadURL,
+                  followers: [],
+                  following: [],
                   tick: false,
                 });
                 // upload sucess
@@ -132,37 +174,41 @@ const SettingsUserDialog = (props: IDialogProps) => {
   return (
     <>
       <Dialog onClose={handleCloseLoginDialog} open={open}>
-        <DialogTitle textAlign={'center'}>Settings Profile</DialogTitle>
+        <SCDialogTitle>Setting Profile</SCDialogTitle>
+
+        {/* <AlertError message={errors.nickname} /> */}
         <List sx={{ pt: 0 }}>
           <SCForm onSubmit={(event) => handleSubmit(event)}>
+            {submited && !!errors.name && <AlertError severity="error">{errors.name}</AlertError>}
+            {submited && !!errors.nickname && <AlertError severity="error">{errors.nickname}</AlertError>}
+
             <SCTextField
               id="name"
               variant="outlined"
               size="small"
-              label="Name"
+              label="Name *"
               value={values.name}
               onChange={handleChange}
             />
-            {submited && !!errors.name && errors.name && <SCError>{errors.name}</SCError>}
 
             <SCTextField
               id="nickname"
               variant="outlined"
               size="small"
-              label="Nickname"
+              label="Nickname *"
               value={values.nickname}
               onChange={handleChange}
             />
-            {submited && !!errors.nickname && errors.nickname && <SCError>{errors.nickname}</SCError>}
 
-            <SCButton variant="outlined" color="secondary" size="small" onClick={() => inputRef.current.click()}>
+            <SCUpload variant="outlined" color="secondary" size="small" onClick={() => inputRef.current.click()}>
+              <Image />
               Upload Avatar
               <input type="file" ref={inputRef} hidden accept="image/*" onChange={(event) => onFileChange(event)} />
-            </SCButton>
+            </SCUpload>
 
             {file && <SCAvatarPreview src={file.preview} />}
             <SCButton type="submit" variant="contained">
-              Update Profile
+              Update
             </SCButton>
           </SCForm>
         </List>
@@ -171,32 +217,5 @@ const SettingsUserDialog = (props: IDialogProps) => {
     </>
   );
 };
-
-const SCForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 10rem;
-  padding: 1rem;
-`;
-
-const SCTextField = styled(TextField)`
-  width: 240px;
-  margin: 1rem 0;
-`;
-const SCButton = styled(Button)`
-  width: 100%;
-  margin-top: 1rem;
-`;
-const SCAvatarPreview = styled(Avatar)``;
-const SCError = styled.p`
-  color: red;
-  text-align: center;
-  width: 100%;
-  margin: 0.1rem 0;
-  line-height: 1rem;
-`;
 
 export default SettingsUserDialog;
