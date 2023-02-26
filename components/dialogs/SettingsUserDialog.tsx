@@ -1,7 +1,7 @@
 import React from 'react';
 import 'react-phone-number-input/style.css';
 import { Dialog, DialogTitle, List, TextField, Button, Avatar } from '@mui/material';
-import { Image, Update } from '@mui/icons-material';
+import { Image } from '@mui/icons-material';
 
 import { useFormik } from 'formik';
 import styled from 'styled-components';
@@ -20,14 +20,8 @@ import { NO_SELECT_AVATAR_FILE, UPLOAD_PROFILE_ERROR, UPLOAD_PROFILE_SUCCESS } f
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { removeAccents } from '../../utils/display';
 import AlertError from '../common/AlertError';
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-    confirmationResult: any;
-    recaptchaWidgetId: any;
-    grecaptcha: any;
-  }
-}
+import LoaderRed from '../loaders/LoaderRed';
+
 const SCForm = styled.form`
   display: flex;
   flex-direction: column;
@@ -46,11 +40,10 @@ const SCButton = styled(Button)`
   width: 100%;
   display: flex;
   align-items: flex-end;
+  margin-top: 1rem;
 `;
 
-const SCUpload = styled(SCButton)`
-  margin-bottom: 1rem;
-`;
+const SCUpload = styled(SCButton)``;
 const SCAvatarPreview = styled(Avatar)`
   margin-top: 1rem !important;
 `;
@@ -75,6 +68,8 @@ const SettingsUserDialog = (props: IDialogProps) => {
   // file
   const inputRef = React.useRef<any>();
   const [file, setFile] = React.useState<any>();
+  const [progress, setProgress] = React.useState<any>();
+
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
 
@@ -108,7 +103,7 @@ const SettingsUserDialog = (props: IDialogProps) => {
     }
     try {
       if (file && fStorage && fAuth.currentUser) {
-        const imageRef = ref(fStorage, `images/${fAuth.currentUser?.uid}${Date.now()}${file.name}`);
+        const imageRef = ref(fStorage, `images/${fAuth.currentUser.uid}${Date.now()}${file.name}`);
         const uploadTask = uploadBytesResumable(imageRef, file);
         uploadTask.on(
           'state_changed',
@@ -116,13 +111,13 @@ const SettingsUserDialog = (props: IDialogProps) => {
             // Observe state change events such as progress, pause, and resume
             // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
+            progress && setProgress(progress.toFixed());
             switch (snapshot.state) {
               case 'paused':
                 console.log('Upload is paused');
                 break;
               case 'running':
-                console.log('Upload is running');
+                'Upload is running';
                 break;
             }
           },
@@ -147,10 +142,12 @@ const SettingsUserDialog = (props: IDialogProps) => {
                 });
                 // upload sucess
                 enqueueSnackbar(UPLOAD_PROFILE_SUCCESS, { variant: 'success' });
+                setProgress(null);
                 handleCloseLoginDialog();
               } else {
                 // upload failed
                 enqueueSnackbar(UPLOAD_PROFILE_ERROR, { variant: 'error' });
+                setProgress(null);
               }
             });
           },
@@ -158,6 +155,7 @@ const SettingsUserDialog = (props: IDialogProps) => {
       }
     } catch (error: any) {
       enqueueSnackbar(UPLOAD_PROFILE_ERROR, { variant: 'error' });
+      setProgress(null);
     }
   };
 
@@ -169,49 +167,51 @@ const SettingsUserDialog = (props: IDialogProps) => {
   });
   const submited = submitCount > 0;
 
-  // Get production API keys from Upload.io
-
   return (
     <>
       <Dialog onClose={handleCloseLoginDialog} open={open}>
-        <SCDialogTitle>Setting Profile</SCDialogTitle>
+        {!!progress ? (
+          <LoaderRed progress={progress} />
+        ) : (
+          <>
+            <SCDialogTitle>Setting Profile</SCDialogTitle>
+            <List sx={{ pt: 0 }}>
+              <SCForm onSubmit={(event) => handleSubmit(event)}>
+                {submited && !!errors.name && <AlertError severity="error">{errors.name}</AlertError>}
+                {submited && !!errors.nickname && <AlertError severity="error">{errors.nickname}</AlertError>}
 
-        {/* <AlertError message={errors.nickname} /> */}
-        <List sx={{ pt: 0 }}>
-          <SCForm onSubmit={(event) => handleSubmit(event)}>
-            {submited && !!errors.name && <AlertError severity="error">{errors.name}</AlertError>}
-            {submited && !!errors.nickname && <AlertError severity="error">{errors.nickname}</AlertError>}
+                <SCTextField
+                  id="name"
+                  variant="outlined"
+                  size="small"
+                  label="Name *"
+                  value={values.name}
+                  onChange={handleChange}
+                />
 
-            <SCTextField
-              id="name"
-              variant="outlined"
-              size="small"
-              label="Name *"
-              value={values.name}
-              onChange={handleChange}
-            />
+                <SCTextField
+                  id="nickname"
+                  variant="outlined"
+                  size="small"
+                  label="Nickname *"
+                  value={values.nickname}
+                  onChange={handleChange}
+                />
 
-            <SCTextField
-              id="nickname"
-              variant="outlined"
-              size="small"
-              label="Nickname *"
-              value={values.nickname}
-              onChange={handleChange}
-            />
+                <SCUpload variant="outlined" color="secondary" size="small" onClick={() => inputRef.current.click()}>
+                  <Image />
+                  <p>Upload Avatar</p>
+                  <input type="file" ref={inputRef} hidden accept="image/*" onChange={(event) => onFileChange(event)} />
+                </SCUpload>
 
-            <SCUpload variant="outlined" color="secondary" size="small" onClick={() => inputRef.current.click()}>
-              <Image />
-              Upload Avatar
-              <input type="file" ref={inputRef} hidden accept="image/*" onChange={(event) => onFileChange(event)} />
-            </SCUpload>
-
-            {file && <SCAvatarPreview src={file.preview} />}
-            <SCButton type="submit" variant="contained">
-              Update
-            </SCButton>
-          </SCForm>
-        </List>
+                {file && <SCAvatarPreview src={file.preview} />}
+                <SCButton type="submit" variant="contained">
+                  Update
+                </SCButton>
+              </SCForm>
+            </List>
+          </>
+        )}
         <div id="recaptcha-container"></div>
       </Dialog>
     </>

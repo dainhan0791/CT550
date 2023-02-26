@@ -31,12 +31,12 @@ const SCSeeAll = styled.p`
 `;
 
 const SuggestedAccounts = () => {
-  const user = useAppSelector((state) => state.auth.user);
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
   const [suggestedAccounts, setSuggestedAccounts] = React.useState<any>([]);
 
   React.useEffect(() => {
     getSuggestedAccount();
-  }, [user]);
+  }, [accessToken]);
 
   const getSuggestedAccount = async () => {
     try {
@@ -54,7 +54,7 @@ const SuggestedAccounts = () => {
       <SCSuggestedAccountsLabel>Suggested accounts</SCSuggestedAccountsLabel>
       {!suggestedAccounts.length && (
         <Skeleton variant="rounded">
-          <AccountItem name={''} nickname={''} photoURL={''} tick={false} isvideo={false} />
+          <AccountItem name={''} nickname={''} photoURL={''} tick={false} uid={''} />
         </Skeleton>
       )}
       {suggestedAccounts &&
@@ -65,7 +65,7 @@ const SuggestedAccounts = () => {
             nickname={account.nickname}
             photoURL={account.photoURL}
             tick={account.tick}
-            isvideo={false}
+            uid={account.uid}
           />
         ))}
       <SCSeeAll>See All</SCSeeAll>

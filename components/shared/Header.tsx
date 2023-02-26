@@ -154,7 +154,7 @@ const Header = () => {
   const [openUploadVideoDialog, setOpenUploadVideoDialog] = React.useState(false);
 
   const handleOpenUploadVideoDialog = () => {
-    if (accessToken) {
+    if (getAccessTokenFromLocalStorage()) {
       setOpenUploadVideoDialog(true);
     } else {
       handleOpenLogInDialog();

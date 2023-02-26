@@ -4,8 +4,10 @@ import HashtagChip from '../chips/HashtagChip';
 
 import useElementOnScreen from '../../hooks/useElementOnScreen';
 
+const SCVideoWrapper = styled.div`
+  margin: 0 0 1rem 1rem;
+`;
 const SCHashtagWrapper = styled.div``;
-const SCVideoWrapper = styled.div``;
 const SCVideoInnerWrapper = styled.div`
   width: 280px;
   height: 500px;
@@ -30,7 +32,6 @@ interface IVideo {
 
 const VideoPreview = (video: IVideo) => {
   const videoRef = React.useRef<any>();
-
   const [playing, setPlaying] = React.useState(false);
   const options = {
     root: null,
@@ -51,14 +52,14 @@ const VideoPreview = (video: IVideo) => {
         setPlaying(false);
       }
     }
-  }, [isVisibile, playing]);
+  }, [isVisibile]);
 
   const handleVideo = () => {
     if (playing && videoRef) {
-      videoRef.current.play();
+      videoRef.current.pause();
       setPlaying(false);
     } else {
-      videoRef.current.pause();
+      videoRef.current.play();
       setPlaying(true);
     }
   };
@@ -68,7 +69,7 @@ const VideoPreview = (video: IVideo) => {
       <SCHashtagWrapper>
         <HashtagChip hashtag={video.hashtag} />
       </SCHashtagWrapper>
-      <SCVideoInnerWrapper>
+      <SCVideoInnerWrapper onClick={handleVideo}>
         {video.url && <SCVideo ref={videoRef} src={video.url} loop preload="true" />}
       </SCVideoInnerWrapper>
     </SCVideoWrapper>

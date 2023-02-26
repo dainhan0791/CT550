@@ -9,6 +9,7 @@ import { IVideoItem } from '../../interfaces/video.interface';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { useSnackbar } from 'notistack';
+import AccountVideoItem from './AccountVideoItem';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
@@ -44,12 +45,11 @@ const VideoItem = (props: IVideoItem) => {
   return (
     <>
       <SCVideoItemWrapper id="videoItem">
-        <AccountItem
-          isvideo={true}
+        <AccountVideoItem
+          uid={props.uid}
           name={props.name}
           nickname={props.nickname}
           desc={props.desc}
-          tick={false}
           photoURL={props.photoURL}
           handleFollow={handleFollow}
         />

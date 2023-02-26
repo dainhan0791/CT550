@@ -6,7 +6,14 @@ import { SnackbarProvider } from 'notistack';
 
 import '../styles/globals.css';
 import 'normalize.css';
-
+declare global {
+  interface Window {
+    recaptchaVerifier: any;
+    confirmationResult: any;
+    recaptchaWidgetId: any;
+    grecaptcha: any;
+  }
+}
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>

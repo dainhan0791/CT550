@@ -6,12 +6,19 @@ export interface IAuth {
   accessToken: string;
 }
 
-export interface IAccountItem extends IIsVideoProps {
-  uid?: string;
+export interface IAccountItem {
+  uid: string;
   name: string;
   nickname: string;
   photoURL: string;
-  desc?: string;
   tick: boolean;
+}
+
+export interface IAccountVideoItem {
+  uid: string;
+  name: string;
+  nickname: string;
+  photoURL: string;
+  desc: string;
   handleFollow?: Function;
 }

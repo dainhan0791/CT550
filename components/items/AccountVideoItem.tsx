@@ -3,7 +3,7 @@ import { Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 import styled from 'styled-components';
-import { IAccountItem, IIsVideoProps } from '../../interfaces/account.interface';
+import { IAccountItem, IAccountVideoItem, IIsVideoProps } from '../../interfaces/account.interface';
 
 const SCAccountItemWrapper = styled.div`
   cursor: pointer;
@@ -25,21 +25,14 @@ const SCName = styled.p`
   overflow: hidden;
   white-space: nowrap;
 `;
-const SCCheckIcon = styled(Check)`
-  background: rgb(32, 213, 236);
-  width: 0.9rem;
-  height: 0.9rem;
-  border-radius: 50%;
-  color: white;
-`;
 
 const SCAvatar = styled(Avatar)`
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 3.4rem;
+  height: 3.4rem;
 `;
 
 const SCListBodyItem = styled.div`
-  margin-left: 0rem;
+  margin-left: 1rem;
 `;
 
 const SCNameWrapper = styled.div`
@@ -95,28 +88,35 @@ const SCButtonFollow = styled.button`
     background-color: rgba(254, 44, 85, 0.06);
   }
 `;
-
-const AccountItem = (props: IAccountItem) => {
+const AccountVideoItem = (props: IAccountVideoItem) => {
+  const onHandleFollow = () => {
+    if (props.handleFollow) {
+      props.handleFollow();
+    }
+  };
   return (
-    <SCAccountItemWrapper>
-      <List>
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            <SCAvatar src={props.photoURL} />
-          </ListItemAvatar>
-          <SCListBodyItem>
-            <SCAccountHeadItem style={{ flexDirection: 'column' }}>
-              <SCNameWrapper>
-                <SCName style={{ fontSize: '0.9rem', lineHeight: '1.2rem' }}>{props.name}</SCName>
-                {props.tick && <SCCheckIcon />}
-              </SCNameWrapper>
-              <SCSubName style={{ lineHeight: '1.2rem' }}>{props.nickname}</SCSubName>
-            </SCAccountHeadItem>
-          </SCListBodyItem>
-        </ListItem>
-      </List>
-    </SCAccountItemWrapper>
+    <>
+      <SCAccountItemWrapper>
+        <List>
+          <ListItem alignItems="flex-start">
+            <ListItemAvatar>
+              <SCAvatar src={props.photoURL} />
+            </ListItemAvatar>
+            <SCListBodyItem>
+              <SCAccountHeadItem>
+                <SCNameWrapper>
+                  <SCName>{props.name}</SCName>
+                  <SCSubName>{props.nickname}</SCSubName>
+                </SCNameWrapper>
+                <SCButtonFollow onClick={onHandleFollow}>Follow</SCButtonFollow>
+              </SCAccountHeadItem>
+              <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
+            </SCListBodyItem>
+          </ListItem>
+        </List>
+      </SCAccountItemWrapper>
+    </>
   );
 };
 
-export default AccountItem;
+export default AccountVideoItem;
