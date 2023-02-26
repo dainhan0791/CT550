@@ -41,6 +41,9 @@ const VideoPreview = (video: IVideo) => {
   const isVisibile = useElementOnScreen(options, videoRef);
 
   React.useEffect(() => {
+    if (!video) {
+      return;
+    }
     if (isVisibile) {
       if (!playing) {
         videoRef.current.play();
@@ -55,6 +58,9 @@ const VideoPreview = (video: IVideo) => {
   }, [isVisibile]);
 
   const handleVideo = () => {
+    if (!video) {
+      return;
+    }
     if (playing && videoRef) {
       videoRef.current.pause();
       setPlaying(false);

@@ -28,15 +28,7 @@ import {
 import { useSnackbar } from 'notistack';
 import { saveAccessTokenToLocalStorage } from '../../utils/auth.localstorage';
 import { setAccessToken } from '../../redux/slices/auth.slice';
-
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-    confirmationResult: any;
-    recaptchaWidgetId: any;
-    grecaptcha: any;
-  }
-}
+import DisabledButton from '../common/DisabledButton';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -89,6 +81,7 @@ const LogInDialog = (props: IDialogProps) => {
 
   const [phoneNumber, setPhoneNumber] = React.useState<string>('');
   const [otp, setOtp] = React.useState<string>('');
+  const [disabledButton, setDisabledButton] = React.useState<boolean>(false);
 
   const [isOpenVertify, setIsOpenVertify] = React.useState<boolean>(false);
 
@@ -106,44 +99,53 @@ const LogInDialog = (props: IDialogProps) => {
   };
 
   const generateRecaptcha = () => {
-    window.recaptchaVerifier = new RecaptchaVerifier(
-      'recaptcha-container',
-      {
-        size: 'invisible',
-        callback: (response: any) => {
-          // enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        },
-        'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
-          // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
-        },
-      },
-      fAuth,
-    );
-  };
-  const reGenerateRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
+    try {
       window.recaptchaVerifier = new RecaptchaVerifier(
         'recaptcha-container',
         {
           size: 'invisible',
           callback: (response: any) => {
-            // enqueueSnackbar('Allow signInWithPhoneNumber', { variant: 'default' });
+            // enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
             // reCAPTCHA solved, allow signInWithPhoneNumber.
           },
           'expired-callback': () => {
             // Response expired. Ask user to solve reCAPTCHA again.
-            // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'warning' });
+            // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
           },
         },
         fAuth,
       );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const reGenerateRecaptcha = () => {
+    try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(
+          'recaptcha-container',
+          {
+            size: 'invisible',
+            callback: (response: any) => {
+              // enqueueSnackbar('Allow signInWithPhoneNumber', { variant: 'default' });
+              // reCAPTCHA solved, allow signInWithPhoneNumber.
+            },
+            'expired-callback': () => {
+              // Response expired. Ask user to solve reCAPTCHA again.
+              // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'warning' });
+            },
+          },
+          fAuth,
+        );
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const onSubmit = async () => {
-    if (phoneNumber.length < 11) {
+    if (phoneNumber.length < 11 || phoneNumber.length > 12) {
+      enqueueSnackbar('Phone Number Error', { variant: 'error' });
       return;
     } else {
       try {
@@ -157,23 +159,21 @@ const LogInDialog = (props: IDialogProps) => {
               window.confirmationResult = confirmationResult;
               // Open vertify otp
               enqueueSnackbar(SEND_SMS_SUCCESS, { variant: 'success' });
-
+              setDisabledButton(true);
               setIsOpenVertify(true);
             })
             .catch((error) => {
               // Error; SMS not sent
-              enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
+              setDisabledButton(false);
 
               console.log(error);
             });
-        } else {
-          enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
         }
       } catch (error: any) {
         console.log(error);
-        enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
-
         reGenerateRecaptcha();
+        setDisabledButton(false);
+        enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
       }
     }
   };
@@ -195,14 +195,10 @@ const LogInDialog = (props: IDialogProps) => {
         }
       } else {
         enqueueSnackbar(VERTIFY_OTP_ERROR, { variant: 'error' });
-
-        reGenerateRecaptcha();
       }
     } catch (error: any) {
       console.log(error);
       enqueueSnackbar(VERTIFY_OTP_ERROR, { variant: 'error' });
-
-      reGenerateRecaptcha();
     }
   };
 
@@ -244,10 +240,10 @@ const LogInDialog = (props: IDialogProps) => {
                     outline: 'none',
                   }}
                 />
-                <SCButton variant="contained" color="inherit" onClick={backToSendSMS}>
+                <SCButton type="button" variant="contained" color="inherit" onClick={backToSendSMS}>
                   Back
                 </SCButton>
-                <SCButton variant="contained" color="success" onClick={vertifySMS}>
+                <SCButton type="button" variant="contained" color="success" onClick={vertifySMS}>
                   Vertify
                 </SCButton>
               </>
@@ -260,10 +256,13 @@ const LogInDialog = (props: IDialogProps) => {
                   value={phoneNumber}
                   onChange={(number: any) => setPhoneNumber(number)}
                 />
-
-                <SCButton type="submit" color="info" variant="contained">
-                  Log in
-                </SCButton>
+                {disabledButton ? (
+                  <DisabledButton setToggle={setDisabledButton} />
+                ) : (
+                  <SCButton type="submit" color="info" variant="contained">
+                    Log in
+                  </SCButton>
+                )}
               </>
             )}
           </SCForm>

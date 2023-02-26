@@ -61,11 +61,11 @@ const SuggestedAccounts = () => {
         suggestedAccounts.map((account: IAccountItem) => (
           <AccountItem
             key={account.uid}
+            uid={account.uid}
             name={account.name}
             nickname={account.nickname}
             photoURL={account.photoURL}
             tick={account.tick}
-            uid={account.uid}
           />
         ))}
       <SCSeeAll>See All</SCSeeAll>

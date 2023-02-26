@@ -6,12 +6,19 @@ export interface IAuth {
   accessToken: string;
 }
 
+export interface IProfile {
+  profile: IAccountItem | null;
+}
+
 export interface IAccountItem {
   uid: string;
   name: string;
   nickname: string;
   photoURL: string;
   tick: boolean;
+  noAccentName?: string;
+  followers?: Array<string>;
+  following?: Array<string>;
 }
 
 export interface IAccountVideoItem {
@@ -20,5 +27,5 @@ export interface IAccountVideoItem {
   nickname: string;
   photoURL: string;
   desc: string;
-  handleFollow?: Function;
+  handleFollow: Function;
 }

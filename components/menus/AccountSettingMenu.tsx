@@ -41,10 +41,10 @@ const AccountSettingMenu = ({
 
   const handleLogout = async () => {
     try {
+      await handleSignOutFirebase();
       enqueueSnackbar(LOGOUT_SUCCESS, { variant: 'success' });
       dispatch(removeAccessToken());
       removeAccessTokenFromLocalStorage();
-      await handleSignOutFirebase();
     } catch (error) {
       console.log(error);
       enqueueSnackbar(LOGOUT_ERROR, { variant: 'error' });

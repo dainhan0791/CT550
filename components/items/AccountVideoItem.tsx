@@ -4,6 +4,9 @@ import { Check } from '@mui/icons-material';
 
 import styled from 'styled-components';
 import { IAccountItem, IAccountVideoItem, IIsVideoProps } from '../../interfaces/account.interface';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useAppSelector } from '../../redux/hooks/hooks';
 
 const SCAccountItemWrapper = styled.div`
   cursor: pointer;
@@ -88,12 +91,24 @@ const SCButtonFollow = styled.button`
     background-color: rgba(254, 44, 85, 0.06);
   }
 `;
+const SCButtonFollowed = styled(SCButtonFollow)`
+  opacity: 0.4;
+  cursor: auto;
+`;
 const AccountVideoItem = (props: IAccountVideoItem) => {
+  const profile = useAppSelector((state) => state.account.profile);
+  // const [followed, setFollowed] = React.useState<boolean>(profile?.following?.includes(props.uid));
+
+  const followed = profile?.following?.includes(props.uid);
+
+  // const followed = profile?.following?.includes(props.uid);
+
   const onHandleFollow = () => {
     if (props.handleFollow) {
       props.handleFollow();
     }
   };
+
   return (
     <>
       <SCAccountItemWrapper>
@@ -108,7 +123,17 @@ const AccountVideoItem = (props: IAccountVideoItem) => {
                   <SCName>{props.name}</SCName>
                   <SCSubName>{props.nickname}</SCSubName>
                 </SCNameWrapper>
-                <SCButtonFollow onClick={onHandleFollow}>Follow</SCButtonFollow>
+                {fAuth.currentUser?.uid === props.uid ? (
+                  ''
+                ) : (
+                  <>
+                    {followed ? (
+                      <SCButtonFollowed disabled>Followed</SCButtonFollowed>
+                    ) : (
+                      <SCButtonFollow onClick={onHandleFollow}>Follow</SCButtonFollow>
+                    )}
+                  </>
+                )}
               </SCAccountHeadItem>
               <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
             </SCListBodyItem>

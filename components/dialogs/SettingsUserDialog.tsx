@@ -1,7 +1,7 @@
 import React from 'react';
 import 'react-phone-number-input/style.css';
 import { Dialog, DialogTitle, List, TextField, Button, Avatar } from '@mui/material';
-import { Image } from '@mui/icons-material';
+import ImageIcon from '@mui/icons-material/Image';
 
 import { useFormik } from 'formik';
 import styled from 'styled-components';
@@ -20,7 +20,8 @@ import { NO_SELECT_AVATAR_FILE, UPLOAD_PROFILE_ERROR, UPLOAD_PROFILE_SUCCESS } f
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { removeAccents } from '../../utils/display';
 import AlertError from '../common/AlertError';
-import LoaderRed from '../loaders/LoaderRed';
+import RedLoader from '../loaders/RedLoader';
+import { setProfile } from '../../redux/slices/account.slice';
 
 const SCForm = styled.form`
   display: flex;
@@ -140,6 +141,7 @@ const SettingsUserDialog = (props: IDialogProps) => {
                   following: [],
                   tick: false,
                 });
+
                 // upload sucess
                 enqueueSnackbar(UPLOAD_PROFILE_SUCCESS, { variant: 'success' });
                 setProgress(null);
@@ -171,7 +173,7 @@ const SettingsUserDialog = (props: IDialogProps) => {
     <>
       <Dialog onClose={handleCloseLoginDialog} open={open}>
         {!!progress ? (
-          <LoaderRed progress={progress} />
+          <RedLoader progress={progress} />
         ) : (
           <>
             <SCDialogTitle>Setting Profile</SCDialogTitle>
@@ -199,7 +201,7 @@ const SettingsUserDialog = (props: IDialogProps) => {
                 />
 
                 <SCUpload variant="outlined" color="secondary" size="small" onClick={() => inputRef.current.click()}>
-                  <Image />
+                  <ImageIcon />
                   <p>Upload Avatar</p>
                   <input type="file" ref={inputRef} hidden accept="image/*" onChange={(event) => onFileChange(event)} />
                 </SCUpload>

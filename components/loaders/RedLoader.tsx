@@ -59,7 +59,7 @@ const SCLoaderProgress = styled.div`
   color: #fff;
 `;
 
-const LoaderRed = ({ progress }: { progress: number }) => {
+const RedLoader = ({ progress }: { progress: number }) => {
   return (
     <SCLoaderRedWrapper>
       <SCLoaderWrapper>
@@ -71,4 +71,4 @@ const LoaderRed = ({ progress }: { progress: number }) => {
   );
 };
 
-export default LoaderRed;
+export default RedLoader;

@@ -19,8 +19,8 @@ import { VideoValidationSchema } from '../../validation/video.validation';
 import VideoPreview from '../common/VideoPreview';
 import { useSnackbar } from 'notistack';
 import { NO_SELECT_VIDEO_FILE, UPLOAD_VIDEO_FAILED, UPLOAD_VIDEO_SUCCESS } from '../../constants/upload';
-import LoaderRed from '../loaders/LoaderRed';
-import { minHeight } from '@mui/system';
+import RedLoader from '../loaders/RedLoader';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -67,10 +67,10 @@ const SCUpload = styled(SCButton)``;
 
 const UploadVideoDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
+  const profile = useAppSelector((state) => state.account.profile);
+
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
-
-  const [profile, setProfile] = React.useState<any>();
 
   const inputRef = React.useRef<any>();
 
@@ -98,23 +98,6 @@ const UploadVideoDialog = (props: IDialogProps) => {
       file && URL.revokeObjectURL(file.preview);
     };
   }, [file]);
-
-  React.useEffect(() => {
-    const getProfileFromFirebase = async () => {
-      if (fStore && fAuth.currentUser?.uid) {
-        const userRef = doc(fStore, 'users', fAuth.currentUser.uid);
-        const docSnap = await getDoc(userRef);
-
-        if (docSnap.exists()) {
-          setProfile(docSnap.data());
-        } else {
-          // doc.data() will be undefined in this case
-          console.log('No such document!');
-        }
-      }
-    };
-    getProfileFromFirebase();
-  }, []);
 
   const onSubmit = async () => {
     if (!file) {
@@ -151,22 +134,22 @@ const UploadVideoDialog = (props: IDialogProps) => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-              if (downloadURL && fAuth.currentUser && profile) {
-                await setDoc(doc(fStore, 'videos', fAuth.currentUser.uid + Date.now()), {
-                  uid: fAuth.currentUser.uid,
-                  name: profile.name,
-                  nickname: profile.nickname,
-                  photoURL: profile.photoURL,
-                  desc: values.desc,
-                  hashtag: values.hashtag,
-                  url: downloadURL,
-                });
+              try {
+                if (downloadURL && profile) {
+                  await setDoc(doc(fStore, 'videos', profile.uid + Date.now()), {
+                    uid: profile.uid,
+                    vid: profile.uid + Date.now(),
+                    desc: values.desc,
+                    hashtag: values.hashtag,
+                    url: downloadURL,
+                  });
 
-                enqueueSnackbar(UPLOAD_VIDEO_SUCCESS, { variant: 'success' });
-                setProgress(null);
+                  enqueueSnackbar(UPLOAD_VIDEO_SUCCESS, { variant: 'success' });
+                  setProgress(null);
 
-                handleCloseUploadVideoDialog();
-              } else {
+                  handleCloseUploadVideoDialog();
+                }
+              } catch (error) {
                 enqueueSnackbar(UPLOAD_VIDEO_FAILED, { variant: 'error' });
                 setProgress(null);
 
@@ -195,7 +178,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
     <>
       <Dialog onClose={handleCloseUploadVideoDialog} open={open}>
         {progress ? (
-          <LoaderRed progress={progress} />
+          <RedLoader progress={progress} />
         ) : (
           <>
             <SCDialogTitle textAlign={'center'}>Upload Video</SCDialogTitle>

@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import VideoItem from '../items/VideoItem';
 
 // firebase
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { fStore } from '../../firebase/init.firebase';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { fAuth, fStore } from '../../firebase/init.firebase';
 import { Skeleton } from '@mui/material';
 
 const SCFeedstWrapper = styled.div`

@@ -1,15 +1,15 @@
 import { Divider } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
-import AccountItem from './AccountItem';
 import Video from '../common/Video';
 import { IVideoItem } from '../../interfaces/video.interface';
 
 // firebase
-import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { useSnackbar } from 'notistack';
 import AccountVideoItem from './AccountVideoItem';
+import { IAccountVideoItem } from '../../interfaces/account.interface';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
@@ -21,38 +21,65 @@ const SCVideoItemWrapper = styled.div`
 
 const VideoItem = (props: IVideoItem) => {
   const { enqueueSnackbar } = useSnackbar();
+  const [profile, setProfile] = React.useState<IAccountVideoItem>();
+
+  React.useEffect(() => {
+    const getProfileFromFirebase = async () => {
+      try {
+        if (fStore) {
+          const docRef = doc(fStore, 'users', props.uid);
+
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const profile: any = docSnap.data();
+            setProfile(profile);
+          } else {
+            // doc.data() will be undefined in this case
+            console.log('No such document!');
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getProfileFromFirebase();
+  }, []);
 
   const handleFollow = async () => {
     try {
       if (fStore && fAuth.currentUser && props) {
         const userRef = doc(fStore, 'users', props.uid);
+        const currentUserRef = doc(fStore, 'users', fAuth.currentUser.uid);
         if (props.uid !== fAuth.currentUser.uid) {
           await updateDoc(userRef, {
-            followes: arrayUnion(fAuth.currentUser.uid),
+            followers: arrayUnion(fAuth.currentUser.uid),
           });
-          enqueueSnackbar(`Follow ${props.name}`, { variant: 'success' });
-        } else {
-          alert('no follow chinh minh');
-          enqueueSnackbar('Follow failed', { variant: 'error' });
+          await updateDoc(currentUserRef, {
+            following: arrayUnion(props.uid),
+          });
+          enqueueSnackbar(`Follow successfully`, { variant: 'success' });
         }
       }
     } catch (error) {
       enqueueSnackbar('Follow failed', { variant: 'error' });
-
       console.log(error);
     }
   };
+
   return (
     <>
       <SCVideoItemWrapper id="videoItem">
-        <AccountVideoItem
-          uid={props.uid}
-          name={props.name}
-          nickname={props.nickname}
-          desc={props.desc}
-          photoURL={props.photoURL}
-          handleFollow={handleFollow}
-        />
+        {profile && (
+          <AccountVideoItem
+            uid={profile.uid}
+            name={profile.name}
+            nickname={profile.nickname}
+            desc={profile.desc}
+            photoURL={profile.photoURL}
+            handleFollow={handleFollow}
+          />
+        )}
         <Video
           hashtag={props.hashtag}
           url={props.url}
