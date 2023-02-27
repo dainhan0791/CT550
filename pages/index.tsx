@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <Layout title="Tik tok">
       <SCBodyWrapper maxWidth="lg">
-        <Grid2 container>
+        <Grid2 container spacing={4}>
           <Grid2 xs={4}>
             <LeftSideBar />
           </Grid2>

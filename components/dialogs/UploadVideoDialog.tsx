@@ -142,6 +142,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
                     desc: values.desc,
                     hashtag: values.hashtag,
                     url: downloadURL,
+                    likes: [],
                   });
 
                   enqueueSnackbar(UPLOAD_VIDEO_SUCCESS, { variant: 'success' });

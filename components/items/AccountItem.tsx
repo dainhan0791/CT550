@@ -3,11 +3,18 @@ import { Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 import styled from 'styled-components';
-import { IAccountItem, IIsVideoProps } from '../../interfaces/account.interface';
+import { IAccountItem } from '../../interfaces/account.interface';
+import { useRouter } from 'next/router';
 
 const SCAccountItemWrapper = styled.div`
   cursor: pointer;
   max-width: 500px;
+`;
+const SCListItem = styled(ListItem)`
+  align-items: flex-start;
+  &:hover {
+    background: rgba(22, 24, 35, 0.03);
+  }
 `;
 const SCAccountHeadItem = styled.div`
   display: flex;
@@ -61,46 +68,16 @@ const SCSubName = styled.p`
   line-height: 28px;
   color: rgba(22, 24, 35, 0.75);
 `;
-const SCDescriptionVideo = styled.p`
-  font-size: 1rem;
-  line-height: 22px;
-  font-weight: 400;
-`;
-
-const SCButtonFollow = styled.button`
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 4px;
-  color: rgb(254, 44, 85);
-  border-color: rgb(254, 44, 85);
-  background-color: rgb(255, 255, 255);
-  min-height: 28px;
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: 500;
-  font-family: ProximaNova, PingFangSC, sans-serif;
-  display: flex;
-  -webkit-box-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  justify-content: center;
-  user-select: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  right: 0px;
-  top: 28px;
-  min-width: 88px;
-  padding: 0px 10px;
-  &:hover {
-    background-color: rgba(254, 44, 85, 0.06);
-  }
-`;
 
 const AccountItem = (props: IAccountItem) => {
+  const router = useRouter();
+  const goToUserPage = () => {
+    router.push(`@${props.name}`);
+  };
   return (
     <SCAccountItemWrapper>
       <List>
-        <ListItem alignItems="flex-start">
+        <SCListItem onClick={goToUserPage}>
           <ListItemAvatar>
             <SCAvatar src={props.photoURL} />
           </ListItemAvatar>
@@ -113,7 +90,7 @@ const AccountItem = (props: IAccountItem) => {
               <SCSubName style={{ lineHeight: '1.2rem' }}>{props.nickname}</SCSubName>
             </SCAccountHeadItem>
           </SCListBodyItem>
-        </ListItem>
+        </SCListItem>
       </List>
     </SCAccountItemWrapper>
   );

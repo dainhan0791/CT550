@@ -5,11 +5,12 @@ import Video from '../common/Video';
 import { IVideoItem } from '../../interfaces/video.interface';
 
 // firebase
-import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { useSnackbar } from 'notistack';
 import AccountVideoItem from './AccountVideoItem';
 import { IAccountVideoItem } from '../../interfaces/account.interface';
+import { useAppSelector } from '../../redux/hooks/hooks';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
@@ -20,11 +21,15 @@ const SCVideoItemWrapper = styled.div`
 `;
 
 const VideoItem = (props: IVideoItem) => {
+  const profile = useAppSelector((state) => state.account.profile);
   const { enqueueSnackbar } = useSnackbar();
-  const [profile, setProfile] = React.useState<IAccountVideoItem>();
+
+  const [profileVideo, setProfileVideo] = React.useState<IAccountVideoItem>();
+
+  const liked = props.likes.includes(profile?.uid as string);
 
   React.useEffect(() => {
-    const getProfileFromFirebase = async () => {
+    const getProfileVideoFromFirebase = async () => {
       try {
         if (fStore) {
           const docRef = doc(fStore, 'users', props.uid);
@@ -32,8 +37,8 @@ const VideoItem = (props: IVideoItem) => {
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
-            const profile: any = docSnap.data();
-            setProfile(profile);
+            const profileVideo: any = docSnap.data();
+            setProfileVideo(profileVideo);
           } else {
             // doc.data() will be undefined in this case
             console.log('No such document!');
@@ -43,17 +48,17 @@ const VideoItem = (props: IVideoItem) => {
         console.log(error);
       }
     };
-    getProfileFromFirebase();
+    getProfileVideoFromFirebase();
   }, []);
 
   const handleFollow = async () => {
     try {
-      if (fStore && fAuth.currentUser && props) {
+      if (fStore && profile && props) {
         const userRef = doc(fStore, 'users', props.uid);
-        const currentUserRef = doc(fStore, 'users', fAuth.currentUser.uid);
-        if (props.uid !== fAuth.currentUser.uid) {
+        const currentUserRef = doc(fStore, 'users', profile.uid);
+        if (props.uid !== profile.uid) {
           await updateDoc(userRef, {
-            followers: arrayUnion(fAuth.currentUser.uid),
+            followers: arrayUnion(profile.uid),
           });
           await updateDoc(currentUserRef, {
             following: arrayUnion(props.uid),
@@ -67,16 +72,37 @@ const VideoItem = (props: IVideoItem) => {
     }
   };
 
+  const handleLike = async () => {
+    try {
+      if (fStore && profile && props) {
+        const videoRef = doc(fStore, 'videos', props.vid);
+        if (!liked) {
+          await updateDoc(videoRef, {
+            likes: arrayUnion(profile.uid),
+          });
+          enqueueSnackbar(`Like successfully`, { variant: 'success' });
+        } else {
+          await updateDoc(videoRef, {
+            likes: arrayRemove(profile.uid),
+          });
+          enqueueSnackbar(`Dislike successfully`, { variant: 'success' });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <SCVideoItemWrapper id="videoItem">
-        {profile && (
+        {profileVideo && (
           <AccountVideoItem
-            uid={profile.uid}
-            name={profile.name}
-            nickname={profile.nickname}
-            desc={profile.desc}
-            photoURL={profile.photoURL}
+            uid={profileVideo.uid}
+            name={profileVideo.name}
+            nickname={profileVideo.nickname}
+            desc={props.desc}
+            photoURL={profileVideo.photoURL}
             handleFollow={handleFollow}
           />
         )}
@@ -86,6 +112,8 @@ const VideoItem = (props: IVideoItem) => {
           likes={props.likes}
           comments={props.commens}
           shares={props.shares}
+          handleLike={handleLike}
+          liked={liked}
         />
         <Divider sx={{ margin: '1rem' }} />
       </SCVideoItemWrapper>

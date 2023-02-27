@@ -4,10 +4,13 @@ import HashtagChip from '../chips/HashtagChip';
 
 import { Favorite, Textsms, Share } from '@mui/icons-material';
 import useElementOnScreen from '../../hooks/useElementOnScreen';
+import { IVideo } from '../../interfaces/video.interface';
 
-const SCHashtagWrapper = styled.div``;
 const SCVideoWrapper = styled.div`
   margin-left: 5.7rem;
+`;
+const SCHashtagWrapper = styled.div`
+  margin-left: -0.6rem;
 `;
 const SCVideoInnerWrapper = styled.div`
   width: 280px;
@@ -64,15 +67,7 @@ const SCView = styled.p`
 }
 `;
 
-interface IVideo {
-  hashtag: string;
-  url: string;
-  likes: number;
-  comments: number;
-  shares: number;
-}
-
-const Video = (video: IVideo) => {
+const Video = (props: IVideo) => {
   const videoRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
   const options = {
@@ -106,31 +101,45 @@ const Video = (video: IVideo) => {
     }
   };
 
+  const onHandleLike = () => {
+    if (props.handleLike) {
+      props.handleLike();
+    }
+  };
+
   return (
     <SCVideoWrapper>
       <SCHashtagWrapper>
-        <HashtagChip hashtag={video.hashtag} />
+        <HashtagChip hashtag={props.hashtag} />
       </SCHashtagWrapper>
       <SCVideoInnerWrapper onClick={handleVideo}>
-        {video.url && <SCVideo ref={videoRef} src={video.url} loop preload="true" />}
+        {props.url && <SCVideo ref={videoRef} src={props.url} loop preload="true" />}
         <SCVideoActionWrapper>
-          <SCVideoActionInnerWrapper>
-            <SCButton>
-              <Favorite />
-            </SCButton>
-            <SCView>{video.likes}</SCView>
+          <SCVideoActionInnerWrapper onClick={onHandleLike}>
+            {props.liked ? (
+              <SCButton style={{ color: '#fff', background: '#ff2c55' }}>
+                <Favorite />
+              </SCButton>
+            ) : (
+              <SCButton>
+                <Favorite />
+              </SCButton>
+            )}
+
+            <SCView>{props.likes.length}</SCView>
           </SCVideoActionInnerWrapper>
+
           <SCVideoActionInnerWrapper>
             <SCButton>
               <Textsms />
             </SCButton>
-            <SCView>{video.comments}</SCView>
+            <SCView>{props.comments}</SCView>
           </SCVideoActionInnerWrapper>
           <SCVideoActionInnerWrapper>
             <SCButton>
               <Share />
             </SCButton>
-            <SCView>{video.shares}</SCView>
+            <SCView>{props.shares}</SCView>
           </SCVideoActionInnerWrapper>
         </SCVideoActionWrapper>
       </SCVideoInnerWrapper>

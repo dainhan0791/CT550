@@ -7,9 +7,9 @@ import { IAccountItem, IAccountVideoItem, IIsVideoProps } from '../../interfaces
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useAppSelector } from '../../redux/hooks/hooks';
+import { useRouter } from 'next/router';
 
 const SCAccountItemWrapper = styled.div`
-  cursor: pointer;
   max-width: 500px;
 `;
 const SCAccountHeadItem = styled.div`
@@ -32,6 +32,10 @@ const SCName = styled.p`
 const SCAvatar = styled(Avatar)`
   width: 3.4rem;
   height: 3.4rem;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.6;
+  }
 `;
 
 const SCListBodyItem = styled.div`
@@ -61,6 +65,8 @@ const SCDescriptionVideo = styled.p`
   font-size: 1rem;
   line-height: 22px;
   font-weight: 400;
+  word-wrap: break-word;
+  width: 40%;
 `;
 
 const SCButtonFollow = styled.button`
@@ -96,17 +102,19 @@ const SCButtonFollowed = styled(SCButtonFollow)`
   cursor: auto;
 `;
 const AccountVideoItem = (props: IAccountVideoItem) => {
+  const router = useRouter();
+
   const profile = useAppSelector((state) => state.account.profile);
-  // const [followed, setFollowed] = React.useState<boolean>(profile?.following?.includes(props.uid));
 
   const followed = profile?.following?.includes(props.uid);
-
-  // const followed = profile?.following?.includes(props.uid);
 
   const onHandleFollow = () => {
     if (props.handleFollow) {
       props.handleFollow();
     }
+  };
+  const goToUserPage = () => {
+    router.push(`@${props.name}`);
   };
 
   return (
@@ -114,7 +122,7 @@ const AccountVideoItem = (props: IAccountVideoItem) => {
       <SCAccountItemWrapper>
         <List>
           <ListItem alignItems="flex-start">
-            <ListItemAvatar>
+            <ListItemAvatar onClick={goToUserPage}>
               <SCAvatar src={props.photoURL} />
             </ListItemAvatar>
             <SCListBodyItem>
@@ -123,7 +131,7 @@ const AccountVideoItem = (props: IAccountVideoItem) => {
                   <SCName>{props.name}</SCName>
                   <SCSubName>{props.nickname}</SCSubName>
                 </SCNameWrapper>
-                {fAuth.currentUser?.uid === props.uid ? (
+                {profile && profile.uid === props.uid ? (
                   ''
                 ) : (
                   <>
