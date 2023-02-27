@@ -29,6 +29,7 @@ import { useSnackbar } from 'notistack';
 import { saveAccessTokenToLocalStorage } from '../../utils/auth.localstorage';
 import { setAccessToken } from '../../redux/slices/auth.slice';
 import DisabledButton from '../common/DisabledButton';
+import { generatePrime } from 'crypto';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -100,27 +101,6 @@ const LogInDialog = (props: IDialogProps) => {
 
   const generateRecaptcha = () => {
     try {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        'recaptcha-container',
-        {
-          size: 'invisible',
-          callback: (response: any) => {
-            // enqueueSnackbar('reCAPTCHA solved, allow signInWithPhoneNumber', { variant: 'info' });
-            // reCAPTCHA solved, allow signInWithPhoneNumber.
-          },
-          'expired-callback': () => {
-            // Response expired. Ask user to solve reCAPTCHA again.
-            // enqueueSnackbar('Response expired. Ask user to solve reCAPTCHA again', { variant: 'info' });
-          },
-        },
-        fAuth,
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const reGenerateRecaptcha = () => {
-    try {
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(
           'recaptcha-container',
@@ -165,13 +145,15 @@ const LogInDialog = (props: IDialogProps) => {
             .catch((error) => {
               // Error; SMS not sent
               setDisabledButton(false);
+              const div = document.createElement('div');
+              div.setAttribute('id', 'recaptcha-container');
+              document.body.appendChild(div);
 
               console.log(error);
             });
         }
       } catch (error: any) {
         console.log(error);
-        reGenerateRecaptcha();
         setDisabledButton(false);
         enqueueSnackbar(SEND_SMS_ERROR, { variant: 'error' });
       }
