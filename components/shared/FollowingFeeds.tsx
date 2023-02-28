@@ -17,7 +17,7 @@ const SCFeedstWrapper = styled.div`
   overflow: scroll;
 `;
 
-const Feeds = () => {
+const FollowingFeeds = () => {
   const feeds = useAppSelector((state) => state.feeds.videos);
 
   const focusVideo = () => {
@@ -48,9 +48,9 @@ const Feeds = () => {
           <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} commens={0} shares={0} likes={[]} />
         </Skeleton>
       )}
-      {feeds && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}
+      {feeds && feeds.map((videoItem: any, index: number) => <FollowingVideoItem key={index} {...videoItem} />)}
     </SCFeedstWrapper>
   );
 };
 
-export default Feeds;
+export default FollowingFeeds;

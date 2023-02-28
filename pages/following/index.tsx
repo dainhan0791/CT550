@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Mui
 import { Container } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
@@ -5,16 +7,17 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import styled from 'styled-components';
 
 // Components
-import Layout from '../components/shared/Layout';
-import LeftSideBar from '../components/shared/LeftNavBar';
-import Feeds from '../components/shared/Feeds';
-import React from 'react';
+import Layout from '../../components/shared/Layout';
+import LeftSideBar from '../../components/shared/LeftNavBar';
+import Feeds from '../../components/shared/Feeds';
+import FollowingFeeds from '../../components/shared/FollowingFeeds';
+// Firebase
 
 const SCBodyWrapper = styled(Container)`
   margin-top: 80px;
 `;
 
-export default function Home() {
+export default function Following() {
   return (
     <Layout title="Tik tok">
       <SCBodyWrapper maxWidth="lg">
@@ -23,7 +26,7 @@ export default function Home() {
             <LeftSideBar />
           </Grid2>
           <Grid2 xs={8}>
-            <Feeds />
+            <FollowingFeeds />
           </Grid2>
         </Grid2>
       </SCBodyWrapper>

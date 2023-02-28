@@ -15,15 +15,9 @@ import SearchDataDisplay from '../data/SearchDataDisplay';
 import AccountSettingMenu from '../menus/AccountSettingMenu';
 import MoreVertMenu from '../menus/MoreVertMenu';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
-import { getAccessTokenFromLocalStorage } from '../../utils/auth.localstorage';
 
 // firebase
-import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore';
 import UploadVideoDialog from '../dialogs/UploadVideoDialog';
-import { fAuth, fStore } from '../../firebase/init.firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { IAccountItem, IProfile } from '../../interfaces/account.interface';
-import { setProfile } from '../../redux/slices/account.slice';
 
 const SCHeader = styled.div`
   display: -webkit-box;
@@ -123,15 +117,15 @@ const SCLoginButton = styled(SCButton)`
 const SCMoreIconWrapper = styled.div``;
 
 const Header = () => {
-  const dispatch = useAppDispatch();
   const profile = useAppSelector((state) => state.account.profile);
+  const isLogin = useAppSelector((state) => state.auth.isLogin);
 
   // handle header menu
   const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorElMenu);
 
   // handle isLogin
-  const [isLogin, setIsLogin] = React.useState(false);
+  // const [isLogin, setIsLogin] = React.useState(false);
 
   // handle open menu
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -155,7 +149,7 @@ const Header = () => {
   const [openUploadVideoDialog, setOpenUploadVideoDialog] = React.useState(false);
 
   const handleOpenUploadVideoDialog = () => {
-    if (getAccessTokenFromLocalStorage()) {
+    if (isLogin) {
       setOpenUploadVideoDialog(true);
     } else {
       handleOpenLogInDialog();
@@ -165,58 +159,6 @@ const Header = () => {
   const handleCloseUploadVideoDialog = () => {
     setOpenUploadVideoDialog(false);
   };
-
-  React.useEffect(() => {
-    onAuthStateChanged(fAuth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        setIsLogin(true);
-
-        const getProfileFromFirebase = async () => {
-          try {
-            onSnapshot(doc(fStore, 'users', uid), (doc) => {
-              dispatch(
-                setProfile({
-                  profile: doc.data() as any,
-                }),
-              );
-            });
-          } catch (error) {
-            console.log(error);
-          }
-        };
-        // const getProfileFromFirebase = async () => {
-        //   try {
-        //     if (fStore) {
-        //       const docRef = doc(fStore, 'users', uid);
-
-        //       const docSnap = await getDoc(docRef);
-
-        //       if (docSnap.exists()) {
-        //         const profile: any = docSnap.data();
-        //         dispatch(
-        //           setProfile({
-        //             profile: profile,
-        //           }),
-        //         );
-        //       } else {
-        //         // doc.data() will be undefined in this case
-        //         console.log('No such document!');
-        //       }
-        //     }
-        //   } catch (error) {
-        //     console.log(error);
-        //   }
-        // };
-        getProfileFromFirebase();
-      } else {
-        // User is signed out
-        setIsLogin(false);
-      }
-    });
-  }, []);
 
   return (
     <>

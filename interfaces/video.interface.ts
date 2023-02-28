@@ -15,5 +15,5 @@ export interface IVideo {
   comments: number;
   shares: number;
   liked: boolean;
-  handleLike: Function;
+  handleLike?: Function;
 }

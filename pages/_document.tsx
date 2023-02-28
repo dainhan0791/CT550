@@ -7,6 +7,7 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
+        <div id="recaptcha-container" style={{ display: 'none' }}></div>
       </body>
     </Html>
   );

@@ -1,13 +1,16 @@
+import { feedsSlice } from './slices/feeds.slice';
 import { configureStore } from '@reduxjs/toolkit';
 import counterReducer from './slices/counterSlice';
 import authReducer from './slices/auth.slice';
 import accountReducer from './slices/account.slice';
+import feedsReducer from './slices/feeds.slice';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
     auth: authReducer,
     account: accountReducer,
+    feeds: feedsReducer,
   },
 });
 

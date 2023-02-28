@@ -2,8 +2,87 @@ import Head from 'next/head';
 import React from 'react';
 
 import Header from './Header';
+import { useAppDispatch } from '../../redux/hooks/hooks';
+import { onAuthStateChanged } from 'firebase/auth';
+import { setProfile } from '../../redux/slices/account.slice';
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { setIsLogin } from '../../redux/slices/auth.slice';
+import { collection, query, where, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { setFeeds } from '../../redux/slices/feeds.slice';
+import { IVideo } from '../../interfaces/video.interface';
 
 const Layout = ({ children, title }: { children: React.ReactNode; title: string }) => {
+  const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    onAuthStateChanged(fAuth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        dispatch(setIsLogin(true));
+
+        const getProfileFromFirebase = async () => {
+          try {
+            onSnapshot(doc(fStore, 'users', uid), (doc) => {
+              dispatch(
+                setProfile({
+                  profile: doc.data() as any,
+                }),
+              );
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        };
+        // const getProfileFromFirebase = async () => {
+        //   try {
+        //     if (fStore) {
+        //       const docRef = doc(fStore, 'users', uid);
+
+        //       const docSnap = await getDoc(docRef);
+
+        //       if (docSnap.exists()) {
+        //         const profile: any = docSnap.data();
+        //         dispatch(
+        //           setProfile({
+        //             profile: profile,
+        //           }),
+        //         );
+        //       } else {
+        //         // doc.data() will be undefined in this case
+        //         console.log('No such document!');
+        //       }
+        //     }
+        //   } catch (error) {
+        //     console.log(error);
+        //   }
+        // };
+        getProfileFromFirebase();
+      } else {
+        // User is signed out
+        dispatch(setIsLogin(false));
+      }
+    });
+  }, []);
+  React.useEffect(() => {
+    const getVideos = async () => {
+      try {
+        const q = query(collection(fStore, 'videos'));
+        onSnapshot(q, (querySnapshot) => {
+          const data: any = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data() as IVideo);
+          });
+          dispatch(setFeeds({ videos: data }));
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getVideos();
+  }, []);
+
   return (
     <>
       <Head>

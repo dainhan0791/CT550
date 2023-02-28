@@ -31,12 +31,11 @@ const SCSeeAll = styled.p`
 `;
 
 const SuggestedAccounts = () => {
-  const accessToken = useAppSelector((state) => state.auth.accessToken);
   const [suggestedAccounts, setSuggestedAccounts] = React.useState<any>([]);
 
   React.useEffect(() => {
     getSuggestedAccount();
-  }, [accessToken]);
+  }, []);
 
   const getSuggestedAccount = async () => {
     try {

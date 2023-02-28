@@ -1,14 +1,13 @@
 import { Avatar, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
 import React from 'react';
 import { useAppDispatch } from '../../redux/hooks/hooks';
-import { removeAccessToken } from '../../redux/slices/auth.slice';
 import SettingsUserDialog from '../dialogs/SettingsUserDialog';
 import { handleSignOutFirebase } from '../../firebase/utils.firebase';
 import { Logout, Settings } from '@mui/icons-material';
 import styled from 'styled-components';
 import { useSnackbar } from 'notistack';
 import { LOGOUT_SUCCESS, LOGOUT_ERROR } from '../../constants/login.constant';
-import { removeAccessTokenFromLocalStorage } from '../../utils/auth.localstorage';
+import { setIsLogin } from '../../redux/slices/auth.slice';
 
 const AccountSettingMenu = ({
   anchorEl,
@@ -43,11 +42,11 @@ const AccountSettingMenu = ({
     try {
       await handleSignOutFirebase();
       enqueueSnackbar(LOGOUT_SUCCESS, { variant: 'success' });
-      dispatch(removeAccessToken());
-      removeAccessTokenFromLocalStorage();
+      dispatch(setIsLogin(false));
     } catch (error) {
       console.log(error);
       enqueueSnackbar(LOGOUT_ERROR, { variant: 'error' });
+      dispatch(setIsLogin(true));
     }
   };
 

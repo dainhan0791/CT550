@@ -3,7 +3,7 @@ export interface IIsVideoProps {
 }
 
 export interface IAuth {
-  accessToken: string;
+  isLogin: boolean;
 }
 
 export interface IProfile {

@@ -26,10 +26,7 @@ import {
 } from '../../constants/login.constant';
 
 import { useSnackbar } from 'notistack';
-import { saveAccessTokenToLocalStorage } from '../../utils/auth.localstorage';
-import { setAccessToken } from '../../redux/slices/auth.slice';
 import DisabledButton from '../common/DisabledButton';
-import { generatePrime } from 'crypto';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -171,8 +168,6 @@ const LogInDialog = (props: IDialogProps) => {
       if (UserCredentialImpl) {
         if (fStore) {
           enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
-          dispatch(setAccessToken({ accessToken: UserCredentialImpl.user.accessToken }));
-          saveAccessTokenToLocalStorage({ accessToken: UserCredentialImpl.user.accessToken });
           handleCloseLoginDialog();
         }
       } else {
@@ -249,7 +244,6 @@ const LogInDialog = (props: IDialogProps) => {
             )}
           </SCForm>
         </List>
-        <div id="recaptcha-container"></div>
       </Dialog>
     </>
   );

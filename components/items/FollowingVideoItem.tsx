@@ -20,13 +20,16 @@ const SCVideoItemWrapper = styled.div`
   margin-top: 2rem;
 `;
 
-const VideoItem = (props: IVideoItem) => {
+const FollowingVideoItem = (props: IVideoItem) => {
   const profile = useAppSelector((state) => state.account.profile);
   const { enqueueSnackbar } = useSnackbar();
 
   const [profileVideo, setProfileVideo] = React.useState<IAccountVideoItem>();
 
   const liked = props.likes.includes(profile?.uid as string);
+
+  // Current User Followed Account Is Display Video
+  const followed = profile?.following?.includes(props.uid);
 
   React.useEffect(() => {
     const getProfileVideoFromFirebase = async () => {
@@ -95,30 +98,32 @@ const VideoItem = (props: IVideoItem) => {
 
   return (
     <>
-      <SCVideoItemWrapper id="videoItem">
-        {profileVideo && (
-          <AccountVideoItem
-            uid={profileVideo.uid}
-            name={profileVideo.name}
-            nickname={profileVideo.nickname}
-            desc={props.desc}
-            photoURL={profileVideo.photoURL}
-            handleFollow={handleFollow}
+      {followed && (
+        <SCVideoItemWrapper id="videoItem">
+          {profileVideo && (
+            <AccountVideoItem
+              uid={profileVideo.uid}
+              name={profileVideo.name}
+              nickname={profileVideo.nickname}
+              desc={props.desc}
+              photoURL={profileVideo.photoURL}
+              handleFollow={handleFollow}
+            />
+          )}
+          <Video
+            hashtag={props.hashtag}
+            url={props.url}
+            likes={props.likes}
+            comments={props.commens}
+            shares={props.shares}
+            handleLike={handleLike}
+            liked={liked}
           />
-        )}
-        <Video
-          hashtag={props.hashtag}
-          url={props.url}
-          likes={props.likes}
-          comments={props.commens}
-          shares={props.shares}
-          handleLike={handleLike}
-          liked={liked}
-        />
-        <Divider sx={{ margin: '1rem' }} />
-      </SCVideoItemWrapper>
+          <Divider sx={{ margin: '1rem' }} />
+        </SCVideoItemWrapper>
+      )}
     </>
   );
 };
 
-export default VideoItem;
+export default FollowingVideoItem;
