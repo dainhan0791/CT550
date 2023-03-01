@@ -9,7 +9,13 @@ import { IVideoItem } from '../../interfaces/video.interface';
 const SCFeedstWrapper = styled.div`
   scroll-snap-type: y mandatory;
   height: 100vh;
-  overflow: scroll;
+
+  overflow-y: scroll;
+  -ms-overflow-style: none; /* cho  Internet Explorer, Edge */
+  scrollbar-width: none; /* cho Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* cho Chrome, Safari, and Opera */
+  }
 `;
 
 const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
@@ -20,17 +26,17 @@ const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
     }
   };
 
-  // const getVideos = async () => {
-  //   try {
-  //     const q = query(collection(fStore, 'videos'));
-  //     const videoSnapshot = await getDocs(q);
-  //     const data = videoSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  //     data && setFeeds(data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // };
+  // // const getVideos = async () => {
+  // //   try {
+  // //     const q = query(collection(fStore, 'videos'));
+  // //     const videoSnapshot = await getDocs(q);
+  // //     const data = videoSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  // //     data && setFeeds(data);
+  // //   } catch (error) {
+  // //     console.log(error);
+  // //   }
+  // // };
+  // // };
 
   React.useEffect(() => {
     focusVideo();

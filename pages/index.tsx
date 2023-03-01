@@ -17,7 +17,27 @@ import { fStore } from '../firebase/init.firebase';
 import { IVideoItem } from '../interfaces/video.interface';
 
 const SCBodyWrapper = styled(Container)`
-  margin-top: 80px;
+  margin-top: 70px;
+  height: 100%;
+`;
+
+const SCGridLeftSideBar = styled(Grid2)`
+  height: 100vh;
+  overflow: hidden scroll;
+
+  -ms-overflow-style: none; /* cho  Internet Explorer, Edge */
+  scrollbar-width: none; /* cho Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* cho Chrome, Safari, and Opera */
+  }
+
+  &:hover {
+    -ms-overflow-style: block; /* cho  Internet Explorer, Edge */
+    scrollbar-width: block; /* cho Firefox */
+    &::-webkit-scrollbar {
+      display: block; /* cho Chrome, Safari, and Opera */
+    }
+  }
 `;
 
 export default function Home() {
@@ -40,14 +60,28 @@ export default function Home() {
     getVideos();
   }, []);
 
+  // const getVideos = async () => {
+  //   try {
+  //     const q = query(collection(fStore, 'videos'));
+  //     const videoSnapshot = await getDocs(q);
+  //     const data = videoSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  //     data && setFeeds(data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // };
+
   return (
     <Layout title="Tik tok">
       <SCBodyWrapper maxWidth="lg">
-        <Grid2 container spacing={4}>
-          <Grid2 xs={4}>
+        <Grid2 container spacing={5}>
+          <SCGridLeftSideBar xs={0} md={4}>
             <LeftSideBar />
+          </SCGridLeftSideBar>
+          <Grid2 xs={12} md={8}>
+            {Array.isArray(feeds) && <Feeds feeds={feeds} />}
           </Grid2>
-          <Grid2 xs={8}>{Array.isArray(feeds) && <Feeds feeds={feeds} />}</Grid2>
         </Grid2>
       </SCBodyWrapper>
     </Layout>

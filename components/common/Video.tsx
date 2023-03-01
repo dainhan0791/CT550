@@ -112,8 +112,8 @@ const Video = (props: IVideo) => {
       <SCHashtagWrapper>
         <HashtagChip hashtag={props.hashtag} />
       </SCHashtagWrapper>
-      <SCVideoInnerWrapper onClick={handleVideo}>
-        {props.url && <SCVideo ref={videoRef} src={props.url} loop preload="true" />}
+      <SCVideoInnerWrapper>
+        {props.url && <SCVideo onClick={handleVideo} ref={videoRef} src={props.url} loop preload="true" />}
         <SCVideoActionWrapper>
           <SCVideoActionInnerWrapper onClick={onHandleLike}>
             {props.liked ? (

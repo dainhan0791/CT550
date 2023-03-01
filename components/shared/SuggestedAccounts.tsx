@@ -10,6 +10,7 @@ import { useAppSelector } from '../../redux/hooks/hooks';
 import { Skeleton } from '@mui/material';
 
 const SCSuggestedAccountsWrapper = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 18rem;

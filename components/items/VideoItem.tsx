@@ -11,22 +11,32 @@ import { useSnackbar } from 'notistack';
 import AccountVideoItem from './AccountVideoItem';
 import { IAccountVideoItem } from '../../interfaces/account.interface';
 import { useAppSelector } from '../../redux/hooks/hooks';
+import LogInDialog from '../dialogs/LoginDialog';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
-  height: 650px;
   width: 100%:
   z-index: 999;
   margin-top: 2rem;
+  
 `;
 
 const VideoItem = (props: IVideoItem) => {
+  const isLogin = useAppSelector((state) => state.auth.isLogin);
   const profile = useAppSelector((state) => state.account.profile);
   const { enqueueSnackbar } = useSnackbar();
 
+  const [openLoginDialog, setOpenLoginDialog] = React.useState<boolean>(false);
   const [profileVideo, setProfileVideo] = React.useState<IAccountVideoItem>();
 
   const liked = props.likes.includes(profile?.uid as string);
+
+  const handleOpenLoginDialog = () => {
+    setOpenLoginDialog(true);
+  };
+  const handleCloseLoginDialog = () => {
+    setOpenLoginDialog(false);
+  };
 
   React.useEffect(() => {
     const getProfileVideoFromFirebase = async () => {
@@ -52,6 +62,9 @@ const VideoItem = (props: IVideoItem) => {
   }, [profile]);
 
   const handleFollow = async () => {
+    if (!isLogin) {
+      handleOpenLoginDialog();
+    }
     try {
       if (fStore && profile && props) {
         const userRef = doc(fStore, 'users', props.uid);
@@ -73,6 +86,9 @@ const VideoItem = (props: IVideoItem) => {
   };
 
   const handleLike = async () => {
+    if (!isLogin) {
+      handleOpenLoginDialog();
+    }
     try {
       if (fStore && profile && props) {
         const videoRef = doc(fStore, 'videos', props.vid);
@@ -95,6 +111,7 @@ const VideoItem = (props: IVideoItem) => {
 
   return (
     <>
+      <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
       <SCVideoItemWrapper id="videoItem">
         {profileVideo && (
           <AccountVideoItem

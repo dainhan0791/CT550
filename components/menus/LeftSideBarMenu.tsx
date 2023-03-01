@@ -4,6 +4,8 @@ import { Box, List, ListItem, ListItemButton, ListItemIcon } from '@mui/material
 import { Home, People } from '@mui/icons-material';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
+import { useAppSelector } from '../../redux/hooks/hooks';
+import LogInDialog from '../dialogs/LoginDialog';
 
 const SCListItemText = styled.p<any>`
   font-weight: 700;
@@ -11,38 +13,55 @@ const SCListItemText = styled.p<any>`
   color: ${(props) => (props.home ? 'rgba(255,44,85,1)' : 'rgba(22, 24, 35, 1)')};
 `;
 const LeftSideBarMenu = () => {
+  const isLogin = useAppSelector((state) => state.auth.isLogin);
   const router = useRouter();
+
+  const [openLoginDialog, setOpenLoginDialog] = React.useState<boolean>(false);
+
+  const handleOpenLoginDialog = () => {
+    setOpenLoginDialog(true);
+  };
+  const handleCloseLoginDialog = () => {
+    setOpenLoginDialog(false);
+  };
 
   const goToHomePage = () => {
     router.push('/');
   };
   const goToFollowingPage = () => {
-    router.push('/following');
+    if (isLogin) {
+      router.push('/following');
+    } else {
+      handleOpenLoginDialog();
+    }
   };
   return (
-    <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      <nav aria-label="main mailbox folders">
-        <List>
-          <ListItem disablePadding onClick={goToHomePage}>
-            <ListItemButton>
-              <ListItemIcon>
-                <Home sx={{ color: 'rgba(254, 44, 85, 1)', fontSize: '1.8rem' }} />
-              </ListItemIcon>
-              <SCListItemText home>For You</SCListItemText>
-            </ListItemButton>
-          </ListItem>
+    <>
+      <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
+      <Box>
+        <nav aria-label="main mailbox folders">
+          <List>
+            <ListItem disablePadding onClick={goToHomePage}>
+              <ListItemButton>
+                <ListItemIcon>
+                  <Home sx={{ color: 'rgba(254, 44, 85, 1)', fontSize: '1.8rem' }} />
+                </ListItemIcon>
+                <SCListItemText home>For You</SCListItemText>
+              </ListItemButton>
+            </ListItem>
 
-          <ListItem disablePadding onClick={goToFollowingPage}>
-            <ListItemButton>
-              <ListItemIcon>
-                <People sx={{ color: ' rgba(22, 24, 35, 1)', fontSize: '1.8rem' }} />
-              </ListItemIcon>
-              <SCListItemText>Following</SCListItemText>
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </nav>
-    </Box>
+            <ListItem disablePadding onClick={goToFollowingPage}>
+              <ListItemButton>
+                <ListItemIcon>
+                  <People sx={{ color: ' rgba(22, 24, 35, 1)', fontSize: '1.8rem' }} />
+                </ListItemIcon>
+                <SCListItemText>Following</SCListItemText>
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </nav>
+      </Box>
+    </>
   );
 };
 

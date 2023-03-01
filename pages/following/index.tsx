@@ -20,7 +20,27 @@ import { useAppSelector } from '../../redux/hooks/hooks';
 import Feeds from '../../components/shared/Feeds';
 
 const SCBodyWrapper = styled(Container)`
-  margin-top: 80px;
+  margin-top: 70px;
+  height: 100%;
+`;
+
+const SCGridLeftSideBar = styled(Grid2)`
+  height: 100vh;
+  overflow: hidden scroll;
+
+  -ms-overflow-style: none; /* cho  Internet Explorer, Edge */
+  scrollbar-width: none; /* cho Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* cho Chrome, Safari, and Opera */
+  }
+
+  &:hover {
+    -ms-overflow-style: block; /* cho  Internet Explorer, Edge */
+    scrollbar-width: block; /* cho Firefox */
+    &::-webkit-scrollbar {
+      display: block; /* cho Chrome, Safari, and Opera */
+    }
+  }
 `;
 
 export default function Following() {
@@ -49,9 +69,9 @@ export default function Following() {
     <Layout title="Tik tok">
       <SCBodyWrapper maxWidth="lg">
         <Grid2 container spacing={4}>
-          <Grid2 xs={4}>
+          <SCGridLeftSideBar xs={4}>
             <LeftSideBar />
-          </Grid2>
+          </SCGridLeftSideBar>
           <Grid2 xs={8}>{Array.isArray(feeds) && <Feeds feeds={feeds} />}</Grid2>
         </Grid2>
       </SCBodyWrapper>

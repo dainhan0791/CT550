@@ -8,9 +8,10 @@ import { useRouter } from 'next/router';
 
 const SCAccountItemWrapper = styled.div`
   cursor: pointer;
-  max-width: 500px;
+  width: 100%;
 `;
 const SCListItem = styled(ListItem)`
+  width: 346px;
   align-items: flex-start;
   &:hover {
     background: rgba(22, 24, 35, 0.03);
@@ -19,7 +20,6 @@ const SCListItem = styled(ListItem)`
 const SCAccountHeadItem = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 500px;
   margin-top: 0.4rem;
 `;
 const SCName = styled.p`
