@@ -13,7 +13,7 @@ import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
 // Firebase
 import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
 
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { VideoValidationSchema } from '../../validation/video.validation';
 import VideoPreview from '../common/VideoPreview';
@@ -143,6 +143,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
                     hashtag: values.hashtag,
                     url: downloadURL,
                     likes: [],
+                    timestamp: serverTimestamp(),
                   });
 
                   enqueueSnackbar(UPLOAD_VIDEO_SUCCESS, { variant: 'success' });

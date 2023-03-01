@@ -3,13 +3,8 @@ import styled from 'styled-components';
 import VideoItem from '../items/VideoItem';
 
 // firebase
-import { collection, query, where, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { fAuth, fStore } from '../../firebase/init.firebase';
 import { Skeleton } from '@mui/material';
-import { IVideo } from '../../interfaces/video.interface';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
-import { setFeeds } from '../../redux/slices/feeds.slice';
-import FollowingVideoItem from '../items/FollowingVideoItem';
+import { IVideoItem } from '../../interfaces/video.interface';
 
 const SCFeedstWrapper = styled.div`
   scroll-snap-type: y mandatory;
@@ -17,12 +12,12 @@ const SCFeedstWrapper = styled.div`
   overflow: scroll;
 `;
 
-const Feeds = () => {
-  const feeds = useAppSelector((state) => state.feeds.videos);
-
+const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
   const focusVideo = () => {
-    const element = document.getElementById('targetVideo');
-    element && element.focus();
+    if (Array.isArray(feeds)) {
+      const element = document.getElementById('targetVideo');
+      element && element.focus();
+    }
   };
 
   // const getVideos = async () => {
@@ -40,7 +35,6 @@ const Feeds = () => {
   React.useEffect(() => {
     focusVideo();
   }, []);
-
   return (
     <SCFeedstWrapper id="targetVideo">
       {!feeds.length && (
@@ -48,7 +42,7 @@ const Feeds = () => {
           <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} commens={0} shares={0} likes={[]} />
         </Skeleton>
       )}
-      {feeds && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}
+      {Array.isArray(feeds) && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}
     </SCFeedstWrapper>
   );
 };

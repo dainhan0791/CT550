@@ -8,20 +8,20 @@ import styled from 'styled-components';
 
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
+import { useSnackbar } from 'notistack';
+import { NO_SELECT_AVATAR_FILE, UPLOAD_PROFILE_ERROR, UPLOAD_PROFILE_SUCCESS } from '../../constants/upload';
+import { setProfile } from '../../redux/slices/account.slice';
+import { removeAccents } from '../../utils/display';
+import AlertError from '../common/AlertError';
+import RedLoader from '../loaders/RedLoader';
 // Redux
 import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
 // Firebase
 import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
-import { ProfileValidationSchema } from '../../validation/profile.validation';
-
-import { doc, setDoc } from 'firebase/firestore';
-import { useSnackbar } from 'notistack';
-import { NO_SELECT_AVATAR_FILE, UPLOAD_PROFILE_ERROR, UPLOAD_PROFILE_SUCCESS } from '../../constants/upload';
+import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { removeAccents } from '../../utils/display';
-import AlertError from '../common/AlertError';
-import RedLoader from '../loaders/RedLoader';
-import { setProfile } from '../../redux/slices/account.slice';
+
+import { ProfileValidationSchema } from '../../validation/profile.validation';
 
 const SCForm = styled.form`
   display: flex;
@@ -63,6 +63,7 @@ const SCDialogTitle = styled(DialogTitle)`
 `;
 
 const SettingsUserDialog = (props: IDialogProps) => {
+  const profile = useAppSelector((state) => state.account.profile);
   const { onClose, open } = props;
   const dispatch = useAppDispatch();
 
@@ -130,16 +131,14 @@ const SettingsUserDialog = (props: IDialogProps) => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-              if (downloadURL && fAuth.currentUser) {
-                await setDoc(doc(fStore, 'users', fAuth.currentUser.uid), {
-                  uid: fAuth.currentUser.uid,
+              if (downloadURL && profile) {
+                await updateDoc(doc(fStore, 'users', profile.uid), {
+                  uid: profile.uid,
                   name: values.name,
                   nickname: values.nickname,
                   noAccentName: removeAccents(`${values.name} ${values.nickname}`),
                   photoURL: downloadURL,
-                  followers: [],
-                  following: [],
-                  tick: false,
+                  timestampUpdate: serverTimestamp(),
                 });
 
                 // upload sucess

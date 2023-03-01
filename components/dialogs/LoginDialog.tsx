@@ -9,12 +9,6 @@ import styled from 'styled-components';
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
 import { LoginValidationSchema } from '../../validation/login.validation';
-// Redux
-import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
-
-// Firebase
-import { fAuth, fStore } from '../../firebase/init.firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import {
   LOGIN_TITLE,
   OTP_FIELD_ERROR,
@@ -24,9 +18,16 @@ import {
   VERTIFY_OTP_ERROR,
   VERTIFY_TITLE,
 } from '../../constants/login.constant';
+// Redux
+import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
+
+// Firebase
+import { fAuth, fStore } from '../../firebase/init.firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 import { useSnackbar } from 'notistack';
 import DisabledButton from '../common/DisabledButton';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -74,8 +75,6 @@ const SCButton = styled(Button)`
 const LogInDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
   const { enqueueSnackbar } = useSnackbar();
-
-  const dispatch = useAppDispatch();
 
   const [phoneNumber, setPhoneNumber] = React.useState<string>('');
   const [otp, setOtp] = React.useState<string>('');
@@ -167,6 +166,11 @@ const LogInDialog = (props: IDialogProps) => {
       const UserCredentialImpl = await confirmationResult.confirm(otp);
       if (UserCredentialImpl) {
         if (fStore) {
+          await setDoc(doc(fStore, 'users', UserCredentialImpl.user.uid), {
+            uid: UserCredentialImpl.user.uid,
+            tick: false,
+            timestamp: serverTimestamp(),
+          });
           enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
           handleCloseLoginDialog();
         }

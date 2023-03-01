@@ -35,52 +35,13 @@ const Layout = ({ children, title }: { children: React.ReactNode; title: string 
             console.log(error);
           }
         };
-        // const getProfileFromFirebase = async () => {
-        //   try {
-        //     if (fStore) {
-        //       const docRef = doc(fStore, 'users', uid);
 
-        //       const docSnap = await getDoc(docRef);
-
-        //       if (docSnap.exists()) {
-        //         const profile: any = docSnap.data();
-        //         dispatch(
-        //           setProfile({
-        //             profile: profile,
-        //           }),
-        //         );
-        //       } else {
-        //         // doc.data() will be undefined in this case
-        //         console.log('No such document!');
-        //       }
-        //     }
-        //   } catch (error) {
-        //     console.log(error);
-        //   }
-        // };
         getProfileFromFirebase();
       } else {
         // User is signed out
         dispatch(setIsLogin(false));
       }
     });
-  }, []);
-  React.useEffect(() => {
-    const getVideos = async () => {
-      try {
-        const q = query(collection(fStore, 'videos'));
-        onSnapshot(q, (querySnapshot) => {
-          const data: any = [];
-          querySnapshot.forEach((doc) => {
-            data.push(doc.data() as IVideo);
-          });
-          dispatch(setFeeds({ videos: data }));
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getVideos();
   }, []);
 
   return (
