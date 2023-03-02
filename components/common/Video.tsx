@@ -5,6 +5,7 @@ import HashtagChip from '../chips/HashtagChip';
 import { Favorite, Textsms, Share } from '@mui/icons-material';
 import useElementOnScreen from '../../hooks/useElementOnScreen';
 import { IVideo } from '../../interfaces/video.interface';
+import { useRouter } from 'next/router';
 
 const SCVideoWrapper = styled.div`
   margin-left: 5.7rem;
@@ -68,6 +69,7 @@ const SCView = styled.p`
 `;
 
 const Video = (props: IVideo) => {
+  const router = useRouter();
   const videoRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
   const options = {
@@ -91,14 +93,17 @@ const Video = (props: IVideo) => {
     }
   }, [isVisibile]);
 
+  console.log(props);
+
   const handleVideo = () => {
-    if (playing && videoRef) {
-      videoRef.current.pause();
-      setPlaying(false);
-    } else {
-      videoRef.current.play();
-      setPlaying(true);
-    }
+    // if (playing && videoRef) {
+    //   videoRef.current.pause();
+    //   setPlaying(false);
+    // } else {
+    //   videoRef.current.play();
+    //   setPlaying(true);
+    // }
+    router.push(`@${props.name}/video/${props.vid}`);
   };
 
   const onHandleLike = () => {

@@ -5,6 +5,7 @@ import { Movie } from '@mui/icons-material';
 import 'react-phone-number-input/style.css';
 import { useFormik } from 'formik';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
@@ -136,9 +137,9 @@ const UploadVideoDialog = (props: IDialogProps) => {
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
               try {
                 if (downloadURL && profile) {
-                  await setDoc(doc(fStore, 'videos', profile.uid + Date.now()), {
+                  await setDoc(doc(fStore, 'videos', uuidv4()), {
                     uid: profile.uid,
-                    vid: profile.uid + Date.now(),
+                    vid: uuidv4(),
                     desc: values.desc,
                     hashtag: values.hashtag,
                     url: downloadURL,

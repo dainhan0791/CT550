@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { IDiscoverItem } from '../../interfaces/discover.interface';
 import DiscoverItem from '../items/DiscoverItem';
 
 const SCDiscoverWrapper = styled.div`
@@ -16,14 +17,17 @@ const SCChipWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  gap: 0.5rem;
 `;
 
-const Discover = () => {
+const Discover = ({ discover }: { discover: Array<IDiscoverItem> }) => {
   return (
     <SCDiscoverWrapper>
       <SCLabel>Discover</SCLabel>
       <SCChipWrapper>
-        <DiscoverItem />
+        {discover.map((chip) => (
+          <DiscoverItem key={chip.did} chip={chip} />
+        ))}
       </SCChipWrapper>
     </SCDiscoverWrapper>
   );

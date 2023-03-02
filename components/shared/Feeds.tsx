@@ -26,17 +26,17 @@ const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
     }
   };
 
-  // // const getVideos = async () => {
-  // //   try {
-  // //     const q = query(collection(fStore, 'videos'));
-  // //     const videoSnapshot = await getDocs(q);
-  // //     const data = videoSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  // //     data && setFeeds(data);
-  // //   } catch (error) {
-  // //     console.log(error);
-  // //   }
-  // // };
-  // // };
+  // const getVideos = async () => {
+  //   try {
+  //     const q = query(collection(fStore, 'videos'));
+  //     const videoSnapshot = await getDocs(q);
+  //     const data = videoSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  //     data && setFeeds(data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // };
 
   React.useEffect(() => {
     focusVideo();

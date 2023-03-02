@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
 
 // firebase
 import UploadVideoDialog from '../dialogs/UploadVideoDialog';
+import SettingsUserDialog from '../dialogs/SettingsUserDialog';
 
 const SCHeader = styled.div`
   display: -webkit-box;
@@ -135,8 +136,7 @@ const Header = () => {
     setAnchorElMenu(null);
   };
   // handle login-dialog
-  const [openLogInDialog, setOpenLogInDialog] = React.useState(false);
-
+  const [openLogInDialog, setOpenLogInDialog] = React.useState<boolean>(false);
   const handleOpenLogInDialog = () => {
     setOpenLogInDialog(true);
   };
@@ -145,24 +145,38 @@ const Header = () => {
     setOpenLogInDialog(false);
   };
 
+  // handle open settings user dialog
+  const [openSettingsUserDialog, setOpenSettingsUserDialog] = React.useState<boolean>(false);
+  const handleOpenSettingsUserDialog = () => {
+    setOpenSettingsUserDialog(true);
+  };
+
+  const handleCloseSettingsUserDialog = () => {
+    setOpenSettingsUserDialog(false);
+  };
+
   // handle open upload dialog
   const [openUploadVideoDialog, setOpenUploadVideoDialog] = React.useState(false);
+  const handleCloseUploadVideoDialog = () => {
+    setOpenUploadVideoDialog(false);
+  };
 
   const handleOpenUploadVideoDialog = () => {
     if (isLogin) {
-      setOpenUploadVideoDialog(true);
+      if (profile?.name && profile?.nickname) {
+        setOpenUploadVideoDialog(true);
+      } else {
+        handleOpenSettingsUserDialog();
+      }
     } else {
       handleOpenLogInDialog();
     }
   };
 
-  const handleCloseUploadVideoDialog = () => {
-    setOpenUploadVideoDialog(false);
-  };
-
   return (
     <>
       <UploadVideoDialog open={openUploadVideoDialog} onClose={handleCloseUploadVideoDialog} />
+      <SettingsUserDialog open={openSettingsUserDialog} onClose={handleCloseSettingsUserDialog} />
       <SCHeader>
         <SCHeaderWrapper maxWidth="lg">
           <SCHeaderGrid container spacing={2}>

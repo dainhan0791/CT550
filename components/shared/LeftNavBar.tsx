@@ -1,6 +1,9 @@
 import { Divider } from '@mui/material';
+import { collection, getDocs, query } from 'firebase/firestore';
 import React from 'react';
 import styled from 'styled-components';
+import { fStore } from '../../firebase/init.firebase';
+import { IDiscoverItem } from '../../interfaces/discover.interface';
 import { useAppSelector } from '../../redux/hooks/hooks';
 import LeftSideBarLogInTo from '../common/LeftSideBarLogInTo';
 import LeftSideBarMenu from '../menus/LeftSideBarMenu';
@@ -23,6 +26,23 @@ const SCDivider = styled(Divider)`
 const LeftSideBar = () => {
   const isLogin = useAppSelector((state) => state.auth.isLogin);
 
+  const [discover, setDiscover] = React.useState<Array<IDiscoverItem>>([]);
+
+  const getDiscover = async () => {
+    try {
+      const q = query(collection(fStore, 'discover'));
+      const videoSnapshot = await getDocs(q);
+      const data = videoSnapshot.docs.map((doc) => doc.data());
+      data && setDiscover(data as Array<IDiscoverItem>);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    getDiscover();
+  }, []);
+
   return (
     <SCLeftNavBarWapper>
       <SCBox>
@@ -42,7 +62,7 @@ const LeftSideBar = () => {
         <SCDivider />
       </SCBox>
       <SCBox>
-        <Discover />
+        <Discover discover={discover} />
         <SCDivider />
       </SCBox>
       <SCBox>

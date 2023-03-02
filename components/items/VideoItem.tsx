@@ -65,6 +65,7 @@ const VideoItem = (props: IVideoItem) => {
     if (!isLogin) {
       handleOpenLoginDialog();
     }
+
     try {
       if (fStore && profile && props) {
         const userRef = doc(fStore, 'users', props.uid);
@@ -114,24 +115,30 @@ const VideoItem = (props: IVideoItem) => {
       <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
       <SCVideoItemWrapper id="videoItem">
         {profileVideo && (
-          <AccountVideoItem
-            uid={profileVideo.uid}
-            name={profileVideo.name}
-            nickname={profileVideo.nickname}
-            desc={props.desc}
-            photoURL={profileVideo.photoURL}
-            handleFollow={handleFollow}
-          />
+          <>
+            <AccountVideoItem
+              uid={profileVideo.uid}
+              name={profileVideo.name}
+              nickname={profileVideo.nickname}
+              desc={props.desc}
+              photoURL={profileVideo.photoURL}
+              handleFollow={handleFollow}
+            />
+            <Video
+              name={profileVideo.name}
+              uid={props.uid}
+              vid={props.vid}
+              hashtag={props.hashtag}
+              url={props.url}
+              likes={props.likes}
+              comments={props.commens}
+              shares={props.shares}
+              handleLike={handleLike}
+              liked={liked}
+            />
+          </>
         )}
-        <Video
-          hashtag={props.hashtag}
-          url={props.url}
-          likes={props.likes}
-          comments={props.commens}
-          shares={props.shares}
-          handleLike={handleLike}
-          liked={liked}
-        />
+
         <Divider sx={{ margin: '1rem' }} />
       </SCVideoItemWrapper>
     </>

@@ -15,6 +15,7 @@ import Feeds from '../components/shared/Feeds';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { fStore } from '../firebase/init.firebase';
 import { IVideoItem } from '../interfaces/video.interface';
+import { MediaDeviceMax } from '../styles/device-size';
 
 const SCBodyWrapper = styled(Container)`
   margin-top: 70px;
@@ -37,6 +38,9 @@ const SCGridLeftSideBar = styled(Grid2)`
     &::-webkit-scrollbar {
       display: block; /* cho Chrome, Safari, and Opera */
     }
+  }
+  @media${MediaDeviceMax.tablet} {
+    display: none;
   }
 `;
 
@@ -76,7 +80,7 @@ export default function Home() {
     <Layout title="Tik tok">
       <SCBodyWrapper maxWidth="lg">
         <Grid2 container spacing={5}>
-          <SCGridLeftSideBar xs={0} md={4}>
+          <SCGridLeftSideBar md={4}>
             <LeftSideBar />
           </SCGridLeftSideBar>
           <Grid2 xs={12} md={8}>

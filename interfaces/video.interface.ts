@@ -9,6 +9,9 @@ export interface IVideoItem {
   shares: number;
 }
 export interface IVideo {
+  uid: string;
+  vid: string;
+  name: string;
   url: string;
   hashtag: string;
   likes: Array<string>;
