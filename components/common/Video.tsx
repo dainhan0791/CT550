@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+
 import styled from 'styled-components';
 import HashtagChip from '../chips/HashtagChip';
 
@@ -6,9 +8,9 @@ import { Favorite, Textsms, Share } from '@mui/icons-material';
 import useElementOnScreen from '../../hooks/useElementOnScreen';
 import { IVideo } from '../../interfaces/video.interface';
 import { useRouter } from 'next/router';
-import { useAppDispatch } from '../../redux/hooks/hooks';
-import { setCurrentVideo } from '../../redux/slices/currentVideo.slice';
-import { getToolbarUtilityClass } from '@mui/material';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
+import { fStore } from '../../firebase/init.firebase';
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 
 const SCVideoWrapper = styled.div`
   margin-left: 5.7rem;
@@ -72,8 +74,9 @@ const SCView = styled.p`
 `;
 
 const Video = (props: IVideo) => {
-  const router = useRouter();
+  const profile = useAppSelector((state) => state.account.profile);
   const videoRef = React.useRef<any>();
+  const linkRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
   const options = {
     root: null,
@@ -82,11 +85,20 @@ const Video = (props: IVideo) => {
   };
   const isVisibile = useElementOnScreen(options, videoRef);
 
-  React.useEffect(() => {
+  const autoPlayVideo = async () => {
     if (isVisibile) {
-      if (!playing) {
-        videoRef.current.play();
-        setPlaying(true);
+      if (!playing && props && fStore) {
+        const docRef = doc(fStore, 'videos', props.vid);
+        if (docRef && profile) {
+          if (!props.views.includes(profile.uid)) {
+            await updateDoc(docRef, {
+              views: arrayUnion(profile.uid),
+            });
+          }
+
+          videoRef.current.play();
+          setPlaying(true);
+        }
       }
     } else {
       if (playing) {
@@ -94,12 +106,19 @@ const Video = (props: IVideo) => {
         setPlaying(false);
       }
     }
+  };
+
+  React.useEffect(() => {
+    autoPlayVideo();
   }, [isVisibile]);
 
   const handleVideo = () => {
-    if (props.goToDetailsVideo) {
-      props.goToDetailsVideo();
+    if (linkRef) {
+      linkRef.current.click();
     }
+    // if (props.goToDetailsVideo) {
+    //   props.goToDetailsVideo();
+    // }
     // if (playing && videoRef) {
     //   videoRef.current.pause();
     //   setPlaying(false);
@@ -121,6 +140,8 @@ const Video = (props: IVideo) => {
         <HashtagChip hashtag={props.hashtag} />
       </SCHashtagWrapper>
       <SCVideoInnerWrapper>
+        <Link href={`/@${props.name}/video/${props.vid}`} ref={linkRef} />
+
         {props.url && <SCVideo onClick={handleVideo} ref={videoRef} src={props.url} loop preload="true" />}
         <SCVideoActionWrapper>
           <SCVideoActionInnerWrapper onClick={onHandleLike}>

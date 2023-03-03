@@ -30,7 +30,7 @@ interface IVideo {
   url: string;
 }
 
-const VideoPreview = (video: IVideo) => {
+const PreviewVideo = (video: IVideo) => {
   const videoRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
   const options = {
@@ -82,4 +82,4 @@ const VideoPreview = (video: IVideo) => {
   );
 };
 
-export default VideoPreview;
+export default PreviewVideo;

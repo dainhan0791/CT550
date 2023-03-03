@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { IDialogProps } from '../../interfaces/dialog.interface';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { VideoValidationSchema } from '../../validation/video.validation';
-import VideoPreview from '../common/VideoPreview';
+import VideoPreview from '../common/PreviewVideo';
 import { useSnackbar } from 'notistack';
 import { NO_SELECT_VIDEO_FILE, UPLOAD_VIDEO_FAILED, UPLOAD_VIDEO_SUCCESS } from '../../constants/upload';
 import RedLoader from '../loaders/RedLoader';
@@ -143,6 +143,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
                     hashtag: values.hashtag,
                     url: downloadURL,
                     likes: [],
+                    views: [],
                     timestamp: serverTimestamp(),
                   });
 

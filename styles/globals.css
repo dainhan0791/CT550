@@ -48,8 +48,6 @@ body {
   overflow: hidden !important;
   color: rgba(22, 24, 35, 1);
   padding-right: 0 !important;
-
-  /* cho Firefox */
 }
 
 a {

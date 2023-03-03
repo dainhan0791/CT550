@@ -22,6 +22,7 @@ const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
   const focusVideo = () => {
     if (Array.isArray(feeds)) {
       const element = document.getElementById('targetVideo');
+      console.log(element);
       element && element.focus();
     }
   };
@@ -45,7 +46,7 @@ const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
     <SCFeedstWrapper id="targetVideo">
       {!feeds.length && (
         <Skeleton variant="rounded">
-          <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} comments={0} shares={0} likes={[]} />
+          <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} comments={0} shares={0} likes={[]} views={[]} />
         </Skeleton>
       )}
       {Array.isArray(feeds) && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}

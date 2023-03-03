@@ -18,7 +18,6 @@ const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
   z-index: 999;
   margin-top: 2rem;
-  height: 100vh !important;
   min-width: 500px;
 `;
 
@@ -121,7 +120,7 @@ const VideoItem = (props: IVideoItem) => {
   return (
     <>
       <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
-      <SCVideoItemWrapper id="videoItem">
+      <SCVideoItemWrapper>
         {profileVideo && (
           <>
             <AccountVideoItem
@@ -134,6 +133,7 @@ const VideoItem = (props: IVideoItem) => {
               tick={profileVideo.tick}
             />
             <Video
+              vid={props.vid}
               hashtag={props.hashtag}
               url={props.url}
               likes={props.likes}
@@ -142,6 +142,8 @@ const VideoItem = (props: IVideoItem) => {
               handleLike={handleLike}
               liked={liked}
               goToDetailsVideo={goToDetailsVideo}
+              views={props.views}
+              name={profileVideo.name}
             />
           </>
         )}
