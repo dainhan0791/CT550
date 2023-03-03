@@ -5,23 +5,21 @@ import { Movie } from '@mui/icons-material';
 import 'react-phone-number-input/style.css';
 import { useFormik } from 'formik';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
-
 // Local Import
 import { IDialogProps } from '../../interfaces/dialog.interface';
-// Redux
-import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
-// Firebase
-import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
-
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { VideoValidationSchema } from '../../validation/video.validation';
 import VideoPreview from '../common/VideoPreview';
 import { useSnackbar } from 'notistack';
 import { NO_SELECT_VIDEO_FILE, UPLOAD_VIDEO_FAILED, UPLOAD_VIDEO_SUCCESS } from '../../constants/upload';
 import RedLoader from '../loaders/RedLoader';
-import { onAuthStateChanged } from 'firebase/auth';
+// Redux
+import { useAppSelector, useAppDispatch } from '../../redux/hooks/hooks';
+// Firebase
+import { fAuth, fStorage, fStore } from '../../firebase/init.firebase';
+
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { guid } from '../../utils/generates';
 
 const SCDialogTitle = styled(DialogTitle)`
   font-size: 1.2rem;
@@ -135,11 +133,12 @@ const UploadVideoDialog = (props: IDialogProps) => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+              const vid = guid();
               try {
                 if (downloadURL && profile) {
-                  await setDoc(doc(fStore, 'videos', uuidv4()), {
+                  await setDoc(doc(fStore, 'videos', vid), {
                     uid: profile.uid,
-                    vid: uuidv4(),
+                    vid: vid,
                     desc: values.desc,
                     hashtag: values.hashtag,
                     url: downloadURL,

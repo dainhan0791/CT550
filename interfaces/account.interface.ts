@@ -27,5 +27,6 @@ export interface IAccountVideoItem {
   nickname: string;
   photoURL: string;
   desc: string;
+  tick: boolean;
   handleFollow: Function;
 }

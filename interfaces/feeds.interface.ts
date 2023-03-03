@@ -1,4 +1,4 @@
-import { IVideo } from './video.interface';
+import { IVideoItem } from './video.interface';
 export interface IFeeds {
-  videos: Array<IVideo>;
+  videos: Array<IVideoItem>;
 }

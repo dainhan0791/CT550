@@ -1,3 +1,7 @@
+export interface ICurrentVideo {
+  video: IVideoItem | null;
+}
+
 export interface IVideoItem {
   uid: string;
   vid: string;
@@ -5,13 +9,10 @@ export interface IVideoItem {
   hashtag: string;
   url: string;
   likes: Array<string>;
-  commens: number;
+  comments: number;
   shares: number;
 }
 export interface IVideo {
-  uid: string;
-  vid: string;
-  name: string;
   url: string;
   hashtag: string;
   likes: Array<string>;
@@ -19,4 +20,5 @@ export interface IVideo {
   shares: number;
   liked: boolean;
   handleLike?: Function;
+  goToDetailsVideo?: Function;
 }

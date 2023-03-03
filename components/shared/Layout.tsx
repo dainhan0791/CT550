@@ -9,7 +9,7 @@ import { fAuth, fStore } from '../../firebase/init.firebase';
 import { setIsLogin } from '../../redux/slices/auth.slice';
 import { collection, query, where, getDocs, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { setFeeds } from '../../redux/slices/feeds.slice';
-import { IVideo } from '../../interfaces/video.interface';
+import { IVideo, IVideoItem } from '../../interfaces/video.interface';
 
 const Layout = ({ children, title }: { children: React.ReactNode; title: string }) => {
   const dispatch = useAppDispatch();
@@ -42,6 +42,24 @@ const Layout = ({ children, title }: { children: React.ReactNode; title: string 
         dispatch(setIsLogin(false));
       }
     });
+  }, []);
+
+  React.useEffect(() => {
+    const getVideos = async () => {
+      try {
+        const q = query(collection(fStore, 'videos'));
+        onSnapshot(q, (querySnapshot) => {
+          const data: Array<IVideoItem> = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data() as IVideoItem);
+          });
+          dispatch(setFeeds({ videos: data }));
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getVideos();
   }, []);
 
   return (

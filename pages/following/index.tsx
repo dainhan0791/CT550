@@ -12,10 +12,6 @@ import LeftSideBar from '../../components/shared/LeftNavBar';
 
 // Typescript
 import { IVideoItem } from '../../interfaces/video.interface';
-
-// Firebase
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { fStore } from '../../firebase/init.firebase';
 import { useAppSelector } from '../../redux/hooks/hooks';
 import Feeds from '../../components/shared/Feeds';
 
@@ -45,25 +41,11 @@ const SCGridLeftSideBar = styled(Grid2)`
 
 export default function Following() {
   const profile = useAppSelector((state) => state.account.profile);
+  let feeds = useAppSelector((state) => state.feeds.videos);
 
-  const [feeds, setFeeds] = React.useState<Array<IVideoItem>>([]);
-  React.useEffect(() => {
-    const getVideos = async () => {
-      try {
-        const q = query(collection(fStore, 'videos'));
-        onSnapshot(q, (querySnapshot) => {
-          const data: Array<IVideoItem> = [];
-          querySnapshot.forEach((doc) => {
-            data.push(doc.data() as IVideoItem);
-          });
-          setFeeds(data.filter((feed: IVideoItem) => profile?.following?.includes(feed.uid)));
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getVideos();
-  }, []);
+  if (Array.isArray(feeds)) {
+    feeds = feeds.filter((feed: IVideoItem) => profile?.following?.includes(feed.uid));
+  }
 
   return (
     <Layout title="Tik tok">

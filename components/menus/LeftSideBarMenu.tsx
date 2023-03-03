@@ -14,6 +14,7 @@ const SCListItemText = styled.p<any>`
 `;
 const LeftSideBarMenu = () => {
   const isLogin = useAppSelector((state) => state.auth.isLogin);
+  const profile = useAppSelector((state) => state.account.profile);
   const router = useRouter();
 
   const [openLoginDialog, setOpenLoginDialog] = React.useState<boolean>(false);
@@ -29,6 +30,9 @@ const LeftSideBarMenu = () => {
     router.push('/');
   };
   const goToFollowingPage = () => {
+    if (!profile?.following?.length) {
+      return;
+    }
     if (isLogin) {
       router.push('/following');
     } else {

@@ -45,7 +45,7 @@ const Feeds = ({ feeds }: { feeds: Array<IVideoItem> }) => {
     <SCFeedstWrapper id="targetVideo">
       {!feeds.length && (
         <Skeleton variant="rounded">
-          <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} commens={0} shares={0} likes={[]} />
+          <VideoItem uid={''} vid={''} desc={''} hashtag={''} url={''} comments={0} shares={0} likes={[]} />
         </Skeleton>
       )}
       {Array.isArray(feeds) && feeds.map((videoItem: any, index: number) => <VideoItem key={index} {...videoItem} />)}

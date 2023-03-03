@@ -6,6 +6,9 @@ import { Favorite, Textsms, Share } from '@mui/icons-material';
 import useElementOnScreen from '../../hooks/useElementOnScreen';
 import { IVideo } from '../../interfaces/video.interface';
 import { useRouter } from 'next/router';
+import { useAppDispatch } from '../../redux/hooks/hooks';
+import { setCurrentVideo } from '../../redux/slices/currentVideo.slice';
+import { getToolbarUtilityClass } from '@mui/material';
 
 const SCVideoWrapper = styled.div`
   margin-left: 5.7rem;
@@ -93,9 +96,10 @@ const Video = (props: IVideo) => {
     }
   }, [isVisibile]);
 
-  console.log(props);
-
   const handleVideo = () => {
+    if (props.goToDetailsVideo) {
+      props.goToDetailsVideo();
+    }
     // if (playing && videoRef) {
     //   videoRef.current.pause();
     //   setPlaying(false);
@@ -103,7 +107,6 @@ const Video = (props: IVideo) => {
     //   videoRef.current.play();
     //   setPlaying(true);
     // }
-    router.push(`@${props.name}/video/${props.vid}`);
   };
 
   const onHandleLike = () => {

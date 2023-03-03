@@ -10,21 +10,25 @@ import { fAuth, fStore } from '../../firebase/init.firebase';
 import { useSnackbar } from 'notistack';
 import AccountVideoItem from './AccountVideoItem';
 import { IAccountVideoItem } from '../../interfaces/account.interface';
-import { useAppSelector } from '../../redux/hooks/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
 import LogInDialog from '../dialogs/LoginDialog';
+import { useRouter } from 'next/router';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
-  width: 100%:
   z-index: 999;
   margin-top: 2rem;
-  
+  height: 100vh !important;
+  min-width: 500px;
 `;
 
 const VideoItem = (props: IVideoItem) => {
+  const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const dispatch = useAppDispatch();
   const isLogin = useAppSelector((state) => state.auth.isLogin);
   const profile = useAppSelector((state) => state.account.profile);
-  const { enqueueSnackbar } = useSnackbar();
 
   const [openLoginDialog, setOpenLoginDialog] = React.useState<boolean>(false);
   const [profileVideo, setProfileVideo] = React.useState<IAccountVideoItem>();
@@ -47,7 +51,7 @@ const VideoItem = (props: IVideoItem) => {
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
-            const profileVideo: any = docSnap.data();
+            const profileVideo = docSnap.data() as IAccountVideoItem;
             setProfileVideo(profileVideo);
           } else {
             // doc.data() will be undefined in this case
@@ -110,6 +114,10 @@ const VideoItem = (props: IVideoItem) => {
     }
   };
 
+  const goToDetailsVideo = () => {
+    router.push(`@${profileVideo?.name}/video/${props.vid}`);
+  };
+
   return (
     <>
       <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
@@ -123,18 +131,17 @@ const VideoItem = (props: IVideoItem) => {
               desc={props.desc}
               photoURL={profileVideo.photoURL}
               handleFollow={handleFollow}
+              tick={profileVideo.tick}
             />
             <Video
-              name={profileVideo.name}
-              uid={props.uid}
-              vid={props.vid}
               hashtag={props.hashtag}
               url={props.url}
               likes={props.likes}
-              comments={props.commens}
+              comments={props.comments}
               shares={props.shares}
               handleLike={handleLike}
               liked={liked}
+              goToDetailsVideo={goToDetailsVideo}
             />
           </>
         )}

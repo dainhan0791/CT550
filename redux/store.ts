@@ -4,6 +4,7 @@ import counterReducer from './slices/counterSlice';
 import authReducer from './slices/auth.slice';
 import accountReducer from './slices/account.slice';
 import feedsReducer from './slices/feeds.slice';
+import currentVideoReducer from './slices/currentVideo.slice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     auth: authReducer,
     account: accountReducer,
     feeds: feedsReducer,
+    currentVideo: currentVideoReducer,
   },
 });
 
