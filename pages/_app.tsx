@@ -18,7 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <SnackbarProvider maxSnack={3}>
-        <Component {...pageProps} />;
+        <Component {...pageProps} />
       </SnackbarProvider>
     </Provider>
   );

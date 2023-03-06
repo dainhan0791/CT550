@@ -28,5 +28,6 @@ export interface IAccountVideoItem {
   photoURL: string;
   desc: string;
   tick: boolean;
+  timestamp?: any;
   handleFollow: Function;
 }

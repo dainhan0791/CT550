@@ -66,18 +66,19 @@ const SCButton = styled.button`
   height: 50px;
 `;
 const SCView = styled.p`
-     color: rgba(22, 24, 35, 0.75);
-    font-size: 12px;
-    line-height: 17px;
-    text-align: center;
-}
+  color: rgba(22, 24, 35, 0.75);
+  font-size: 12px;
+  line-height: 17px;
+  text-align: center;
 `;
 
 const Video = (props: IVideo) => {
+  const router = useRouter();
   const profile = useAppSelector((state) => state.account.profile);
   const videoRef = React.useRef<any>();
-  const linkRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
+  const [current, setCurrent] = React.useState<any>();
+
   const options = {
     root: null,
     rootMargin: '0px',
@@ -95,8 +96,8 @@ const Video = (props: IVideo) => {
               views: arrayUnion(profile.uid),
             });
           }
-
           videoRef.current.play();
+          setCurrent(videoRef.current);
           setPlaying(true);
         }
       }
@@ -113,12 +114,9 @@ const Video = (props: IVideo) => {
   }, [isVisibile]);
 
   const handleVideo = () => {
-    if (linkRef) {
-      linkRef.current.click();
+    if (props.goToDetailsVideo) {
+      props.goToDetailsVideo();
     }
-    // if (props.goToDetailsVideo) {
-    //   props.goToDetailsVideo();
-    // }
     // if (playing && videoRef) {
     //   videoRef.current.pause();
     //   setPlaying(false);
@@ -140,8 +138,6 @@ const Video = (props: IVideo) => {
         <HashtagChip hashtag={props.hashtag} />
       </SCHashtagWrapper>
       <SCVideoInnerWrapper>
-        <Link href={`/@${props.name}/video/${props.vid}`} ref={linkRef} />
-
         {props.url && <SCVideo onClick={handleVideo} ref={videoRef} src={props.url} loop preload="true" />}
         <SCVideoActionWrapper>
           <SCVideoActionInnerWrapper onClick={onHandleLike}>

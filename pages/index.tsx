@@ -19,7 +19,6 @@ import { MediaDeviceMax } from '../styles/device-size';
 
 const SCBodyWrapper = styled(Container)`
   margin-top: 70px;
-  height: 100%;
 `;
 
 const SCGridLeftSideBar = styled(Grid2)`

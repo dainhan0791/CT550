@@ -16,9 +16,10 @@ import { useRouter } from 'next/router';
 
 const SCVideoItemWrapper = styled.div`
   scroll-snap-align: start;
+  height: 100vh;
+  width: 690px;
   z-index: 999;
   margin-top: 2rem;
-  min-width: 500px;
 `;
 
 const VideoItem = (props: IVideoItem) => {
@@ -118,7 +119,7 @@ const VideoItem = (props: IVideoItem) => {
   };
 
   return (
-    <>
+    <div>
       <LogInDialog open={openLoginDialog} onClose={handleCloseLoginDialog} />
       <SCVideoItemWrapper>
         {profileVideo && (
@@ -144,13 +145,14 @@ const VideoItem = (props: IVideoItem) => {
               goToDetailsVideo={goToDetailsVideo}
               views={props.views}
               name={profileVideo.name}
+              uid={props.uid}
             />
           </>
         )}
 
         <Divider sx={{ margin: '1rem' }} />
       </SCVideoItemWrapper>
-    </>
+    </div>
   );
 };
 

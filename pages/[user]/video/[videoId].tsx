@@ -4,14 +4,20 @@ import { useRouter } from 'next/router';
 import styled from 'styled-components';
 
 // local
-import { IVideo } from '../../../interfaces/video.interface';
+import { IVideo, IVideoItem } from '../../../interfaces/video.interface';
 
 // firebase
-import { collection, doc, getDoc, query, where } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, getDoc, query, updateDoc, where } from 'firebase/firestore';
+
 import { fStore } from '../../../firebase/init.firebase';
 import { useAppSelector } from '../../../redux/hooks/hooks';
 import { IAccountItem } from '../../../interfaces/account.interface';
 import DetailsVideo from '../../../components/common/DetailsVideo';
+import Layout from '../../../components/shared/Layout';
+import AccountDetailsVideoItem from '../../../components/items/AccountDetailsVideoItem';
+import { useSnackbar } from 'notistack';
+import VideoActions from '../../../components/common/ActionsVideo';
+import DetailsRight from '../../../components/common/DetailsRight';
 
 const SCWrapper = styled.div``;
 const SCVideoWrapper = styled(Grid)`
@@ -38,9 +44,10 @@ const SCVideoWrapper = styled(Grid)`
 
 const DetailVideo = () => {
   const profile = useAppSelector((state) => state.account.profile);
+  const feeds = useAppSelector((state) => state.feeds.videos);
   const router = useRouter();
   const { user, videoId } = router.query;
-  const [video, setVideo] = React.useState<IVideo>();
+  const [video, setVideo] = React.useState<IVideoItem>();
   const [profileVideo, setProfileVideo] = React.useState<IAccountItem>();
 
   React.useEffect(() => {
@@ -50,13 +57,21 @@ const DetailVideo = () => {
       }
       try {
         if (fStore && videoId) {
-          console.log(videoId);
-          const docRef = doc(fStore, 'videos', videoId.toString());
+          const videoRef = doc(fStore, 'videos', videoId.toString());
 
-          const docSnap = await getDoc(docRef);
+          const videoSnap = await getDoc(videoRef);
 
-          if (docSnap.exists()) {
-            setVideo(docSnap.data() as IVideo);
+          if (videoSnap.exists()) {
+            const userRef = doc(fStore, 'users', videoSnap.data().uid);
+            const userSnap = await getDoc(userRef);
+
+            if (videoSnap.exists() && userSnap.exists()) {
+              setVideo(videoSnap.data() as IVideoItem);
+              setProfileVideo(userSnap.data() as IAccountItem);
+            } else {
+              // doc.data() will be undefined in this case
+              console.log('No such document!');
+            }
           } else {
             // doc.data() will be undefined in this case
             console.log('No such document!');
@@ -67,28 +82,33 @@ const DetailVideo = () => {
       }
     };
     getDetailVideo();
-  }, [videoId]);
+  }, [videoId, feeds]);
 
   return (
-    <SCWrapper>
-      <Grid container>
-        <SCVideoWrapper item md={7}>
-          {video && (
-            <DetailsVideo
-              url={video?.url}
-              hashtag={video?.hashtag}
-              likes={video?.likes}
-              comments={video?.comments}
-              shares={video?.shares}
-              liked={video?.likes.includes(profile?.uid as string)}
-              vid={video.vid}
-              views={video.views}
-            />
-          )}
-        </SCVideoWrapper>
-        <Grid item md={5}></Grid>
-      </Grid>
-    </SCWrapper>
+    <Layout title="Tik tok" details>
+      <SCWrapper>
+        <Grid container>
+          <SCVideoWrapper item md={7}>
+            {video && (
+              <DetailsVideo
+                url={video?.url}
+                hashtag={video?.hashtag}
+                likes={video?.likes}
+                comments={video?.comments}
+                shares={video?.shares}
+                liked={video?.likes.includes(profile?.uid as string)}
+                vid={video.vid}
+                views={video.views}
+                uid={video.uid}
+              />
+            )}
+          </SCVideoWrapper>
+          <Grid item md={5}>
+            {video && profileVideo && <DetailsRight profileVideo={profileVideo} video={video} />}
+          </Grid>
+        </Grid>
+      </SCWrapper>
+    </Layout>
   );
 };
 

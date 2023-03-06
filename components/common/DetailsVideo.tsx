@@ -7,12 +7,11 @@ import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks/hooks';
 import { fStore } from '../../firebase/init.firebase';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
-import { Clear } from '@mui/icons-material';
-import Link from 'next/link';
+import { ClearRounded, PlayArrowRounded, VolumeUpRounded, VolumeOffRounded } from '@mui/icons-material';
+import { Slider } from '@mui/material';
 
 const SCVideoWrapper = styled.div`
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,7 +20,6 @@ const SCVideoWrapper = styled.div`
 
 const SCVideo = styled.video`
   height: 100vh;
-  width: 100%
   display: block;
   object-fit: cover;
   cursor: pointer;
@@ -44,17 +42,96 @@ const SCBackButton = styled.button`
   border: none;
   outline: none;
   top: 20px;
-  transition: opacity 0.3s ease 0s;
   left: 20px;
+  transition: opacity 0.3s ease 0s;
+`;
+
+const SCVolumeWrapper = styled.div`
+  &:hover {
+    > button:nth-child(1) {
+      display: block;
+    }
+  }
+`;
+
+const SCSliderButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 1.9rem;
+  height: 6rem;
+  padding: 0.8rem 0;
+  background: rgba(84, 84, 84, 0.5);
+  color: #fff;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  right: 25px;
+  bottom: 70px;
+  transition: opacity 0.3s ease 0s;
+  display: none;
+  &:after {
+    content: 'slider';
+    background: transparent;
+    color: transparent;
+  }
+`;
+const SCVolumeButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(84, 84, 84, 0.5);
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  right: 20px;
+  bottom: 20px;
+  transition: opacity 0.3s ease 0s;
+`;
+const SCPlayArrowButton = styled(PlayArrowRounded)`
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 5rem;
+  height: 5rem;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity 0.3s ease 0s;
 `;
 
 const DetailsVideo = (props: IVideo) => {
   const router = useRouter();
   const profile = useAppSelector((state) => state.account.profile);
   const videoRef = React.useRef<any>();
-  const linkRef = React.useRef<any>();
 
   const [playing, setPlaying] = React.useState(false);
+  const [volume, setVolume] = React.useState<number>(100);
+
   const options = {
     root: null,
     rootMargin: '0px',
@@ -72,10 +149,9 @@ const DetailsVideo = (props: IVideo) => {
               views: arrayUnion(profile.uid),
             });
           }
-
-          videoRef.current.play();
-          setPlaying(true);
         }
+        videoRef.current.play();
+        setPlaying(true);
       }
     } else {
       if (playing) {
@@ -92,6 +168,7 @@ const DetailsVideo = (props: IVideo) => {
   const handleVideo = () => {
     if (playing && videoRef) {
       videoRef.current.pause();
+
       setPlaying(false);
     } else {
       videoRef.current.play();
@@ -100,18 +177,69 @@ const DetailsVideo = (props: IVideo) => {
   };
 
   const handleBack = () => {
-    if (linkRef) {
-      linkRef.current.click();
+    router.push('/', undefined, {
+      shallow: false,
+    });
+  };
+  const handleChangeVolume = (event: any) => {
+    setVolume(event?.target.value);
+    const video: any = document.getElementById('video');
+    if (video) {
+      video.volume = event?.target.value / 100;
+    }
+  };
+  const handleMuted = () => {
+    const video: any = document.getElementById('video');
+    if (video) {
+      video.volume = 0;
+      setVolume(0);
     }
   };
 
+  // const ta: any = document.getElementById('video');
+
+  // ta.volume = 0;
   return (
     <SCVideoWrapper>
-      {props.url && <SCVideo onClick={handleVideo} ref={videoRef} src={props.url} loop preload="true" />}
-      <Link href="/" ref={linkRef} scroll={true}></Link>
+      {props.url && <SCVideo id="video" onClick={handleVideo} ref={videoRef} src={props.url} loop preload="true" />}
       <SCBackButton onClick={handleBack}>
-        <Clear />
+        <ClearRounded />
       </SCBackButton>
+      {!playing && <SCPlayArrowButton onClick={handleVideo} />}
+      <SCVolumeWrapper>
+        <SCSliderButton>
+          <Slider
+            value={volume}
+            onChange={handleChangeVolume}
+            aria-label="Volume"
+            min={0}
+            max={100}
+            valueLabelDisplay="auto"
+            orientation="vertical"
+            sx={{
+              color: '#fff',
+              '& .MuiSlider-track': {
+                border: 'none',
+              },
+              '& .MuiSlider-thumb': {
+                width: 14,
+                height: 14,
+                backgroundColor: '#fff',
+                '&:before': {
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
+                },
+                '&:hover, &.Mui-focusVisible, &.Mui-active': {
+                  boxShadow: 'none',
+                },
+              },
+            }}
+          />
+        </SCSliderButton>
+
+        <SCVolumeButton>
+          {volume !== 0 ? <VolumeUpRounded onClick={handleMuted} /> : <VolumeOffRounded />}
+        </SCVolumeButton>
+      </SCVolumeWrapper>
     </SCVideoWrapper>
   );
 };

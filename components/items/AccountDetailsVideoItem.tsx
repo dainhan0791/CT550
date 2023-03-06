@@ -1,8 +1,9 @@
 import React from 'react';
 import { Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
 import { Check } from '@mui/icons-material';
-
 import styled from 'styled-components';
+import moment from 'moment';
+
 import { IAccountItem, IAccountVideoItem, IIsVideoProps } from '../../interfaces/account.interface';
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -13,7 +14,8 @@ const SCAccountItemWrapper = styled.div``;
 const SCAccountHeadItem = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 500px;
+  align-items: center;
+  width: 430px;
   margin-top: 0.4rem;
 `;
 const SCName = styled.p`
@@ -25,11 +27,12 @@ const SCName = styled.p`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  margin-top: 0.3rem;
 `;
 
 const SCAvatar = styled(Avatar)`
-  width: 3.4rem;
-  height: 3.4rem;
+  width: 3rem;
+  height: 3rem;
   cursor: pointer;
   &:hover {
     opacity: 0.6;
@@ -40,33 +43,38 @@ const SCListBodyItem = styled.div`
   margin-left: 1rem;
 `;
 
-const SCNameWrapper = styled.div`
+const SCNameWrapper = styled.div``;
+
+const SCSubNameWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  font-family: SofiaPro, Arial, Tahoma, PingFangSC, sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  line-height: 25px;
-  margin-right: 4px;
+  gap: 0.5rem;
 `;
 
 const SCSubName = styled.p`
-  font-family: ProximaNova, Arial, Tahoma, PingFangSC, sans-serif;
-  font-weight: 400;
-  font-size: 0.78rem;
-  display: inline-block;
-  line-height: 28px;
-  color: rgba(22, 24, 35, 0.75);
+  font-family: 'IBM Plex Sans', ProximaNova, Arial, Tahoma, PingFangSC, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  font-weight: bold;
 `;
+const SCTimer = styled.p``;
 const SCDescriptionVideo = styled.p`
   font-size: 1rem;
   line-height: 22px;
   font-weight: 400;
   word-wrap: break-word;
-  width: 40%;
+  width: 100%;
+  margin-top: 1rem;
+  margin-left: 0.1rem;
 `;
-
+const SCCheckIcon = styled(Check)`
+  background: rgb(32, 213, 236);
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  color: white;
+`;
 const SCButtonFollow = styled.button`
   border-width: 1px;
   border-style: solid;
@@ -74,11 +82,10 @@ const SCButtonFollow = styled.button`
   color: rgb(254, 44, 85);
   border-color: rgb(254, 44, 85);
   background-color: rgb(255, 255, 255);
-  min-height: 28px;
+  height: 30px;
   font-size: 16px;
   line-height: 22px;
   font-weight: 500;
-  font-family: ProximaNova, PingFangSC, sans-serif;
   display: flex;
   -webkit-box-align: center;
   align-items: center;
@@ -87,9 +94,7 @@ const SCButtonFollow = styled.button`
   user-select: none;
   cursor: pointer;
   box-sizing: border-box;
-  right: 0px;
-  top: 28px;
-  min-width: 88px;
+  min-width: 120px;
   padding: 0px 10px;
   &:hover {
     background-color: rgba(254, 44, 85, 0.06);
@@ -99,7 +104,8 @@ const SCButtonFollowed = styled(SCButtonFollow)`
   opacity: 0.4;
   cursor: auto;
 `;
-const AccountVideoItem = (props: IAccountVideoItem) => {
+const AccountDetailsVideoItem = (props: IAccountVideoItem) => {
+  console.log(props.timestamp);
   const router = useRouter();
 
   const profile = useAppSelector((state) => state.account.profile);
@@ -126,7 +132,11 @@ const AccountVideoItem = (props: IAccountVideoItem) => {
             <SCAccountHeadItem>
               <SCNameWrapper>
                 <SCName>{props.name}</SCName>
-                <SCSubName>{props.nickname}</SCSubName>
+                {props.tick && <SCCheckIcon />}
+                <SCSubNameWrapper>
+                  <SCSubName>{props.nickname}.</SCSubName>
+                  <SCTimer>{moment(props.timestamp.seconds * 1000).fromNow()}</SCTimer>
+                </SCSubNameWrapper>
               </SCNameWrapper>
               {profile && profile.uid === props.uid ? (
                 ''
@@ -140,12 +150,14 @@ const AccountVideoItem = (props: IAccountVideoItem) => {
                 </>
               )}
             </SCAccountHeadItem>
-            <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
           </SCListBodyItem>
+        </ListItem>
+        <ListItem alignItems="flex-start">
+          <SCDescriptionVideo>{props.desc} lorem</SCDescriptionVideo>
         </ListItem>
       </List>
     </SCAccountItemWrapper>
   );
 };
 
-export default AccountVideoItem;
+export default AccountDetailsVideoItem;

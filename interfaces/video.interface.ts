@@ -8,12 +8,14 @@ export interface IVideoItem {
   desc: string;
   hashtag: string;
   url: string;
+  timestamp?: any;
   likes: Array<string>;
   comments: number;
   shares: number;
   views: Array<string>;
 }
 export interface IVideo {
+  uid: string;
   vid: string;
   url: string;
   hashtag: string;
@@ -25,4 +27,13 @@ export interface IVideo {
   goToDetailsVideo?: Function;
   name?: string;
   views: Array<string>;
+}
+
+export interface IVideoActions {
+  views: Array<string>;
+  likes: Array<string>;
+  comments: number;
+  shares: number;
+  handleLike: Function;
+  liked: boolean;
 }

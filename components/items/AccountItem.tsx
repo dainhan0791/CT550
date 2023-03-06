@@ -20,7 +20,6 @@ const SCListItem = styled(ListItem)`
 const SCAccountHeadItem = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: 0.4rem;
 `;
 const SCName = styled.p`
   font-family: SofiaPro, Arial, Tahoma, PingFangSC, sans-serif;

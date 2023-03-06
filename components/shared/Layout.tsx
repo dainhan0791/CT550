@@ -11,7 +11,7 @@ import { collection, query, where, getDocs, doc, getDoc, onSnapshot } from 'fire
 import { setFeeds } from '../../redux/slices/feeds.slice';
 import { IVideo, IVideoItem } from '../../interfaces/video.interface';
 
-const Layout = ({ children, title }: { children: React.ReactNode; title: string }) => {
+const Layout = ({ children, title, details }: { children: React.ReactNode; title: string; details?: boolean }) => {
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
@@ -78,7 +78,7 @@ const Layout = ({ children, title }: { children: React.ReactNode; title: string 
         <link rel="icon" href="/favicon.ico" />
         <title>{title}</title>
       </Head>
-      <Header />
+      {!details && <Header />}
       <main>{children}</main>
     </>
   );
