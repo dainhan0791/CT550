@@ -4,10 +4,21 @@ import { useRouter } from 'next/router';
 import styled from 'styled-components';
 
 // local
-import { IVideo, IVideoItem } from '../../../interfaces/video.interface';
+import { IVideo, IVideoDetailsItem } from '../../../interfaces/video.interface';
 
 // firebase
-import { arrayRemove, arrayUnion, collection, doc, getDoc, query, updateDoc, where } from 'firebase/firestore';
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 
 import { fStore } from '../../../firebase/init.firebase';
 import { useAppSelector } from '../../../redux/hooks/hooks';
@@ -18,13 +29,11 @@ import AccountDetailsVideoItem from '../../../components/items/AccountDetailsVid
 import { useSnackbar } from 'notistack';
 import VideoActions from '../../../components/common/ActionsVideo';
 import DetailsRight from '../../../components/common/DetailsRight';
+import { IComment } from '../../../interfaces/comment.interface';
 
 const SCWrapper = styled.div``;
 const SCVideoWrapper = styled(Grid)`
   display: flex;
-  justify-content: center;
-  align-items: center;
-
   background: #191d1e; /* Old browsers */
   background: -moz-linear-gradient(0deg, #191d1e 50%, #283139 100%); /* FF3.6+ */
   background: -webkit-gradient(
@@ -47,7 +56,8 @@ const DetailVideo = () => {
   const feeds = useAppSelector((state) => state.feeds.videos);
   const router = useRouter();
   const { user, videoId } = router.query;
-  const [video, setVideo] = React.useState<IVideoItem>();
+  const [video, setVideo] = React.useState<IVideoDetailsItem>();
+  const [comments, setComments] = React.useState<Array<IComment>>([]);
   const [profileVideo, setProfileVideo] = React.useState<IAccountItem>();
 
   React.useEffect(() => {
@@ -66,7 +76,7 @@ const DetailVideo = () => {
             const userSnap = await getDoc(userRef);
 
             if (videoSnap.exists() && userSnap.exists()) {
-              setVideo(videoSnap.data() as IVideoItem);
+              setVideo(videoSnap.data() as IVideoDetailsItem);
               setProfileVideo(userSnap.data() as IAccountItem);
             } else {
               // doc.data() will be undefined in this case
@@ -84,6 +94,36 @@ const DetailVideo = () => {
     getDetailVideo();
   }, [videoId, feeds]);
 
+  const sortComments = (data: Array<IComment>) => {
+    if (Array.isArray(data)) {
+      return data.sort(
+        (a: IComment, b: IComment) => b.likes.length - a.likes.length || b.timestamp.seconds - a.timestamp.seconds,
+      );
+    }
+  };
+
+  React.useEffect(() => {
+    const getComment = async () => {
+      try {
+        const q = query(collection(fStore, 'comments'), where('vid', '==', videoId));
+        onSnapshot(q, (querySnapshot) => {
+          const data: Array<IComment> = [];
+          querySnapshot.forEach((doc) => {
+            data.push(doc.data() as IComment);
+          });
+
+          if (Array.isArray(data)) {
+            sortComments(data as Array<IComment>);
+            setComments(data as Array<IComment>);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getComment();
+  }, [videoId]);
+
   return (
     <Layout title="Tik tok" details>
       <SCWrapper>
@@ -94,17 +134,17 @@ const DetailVideo = () => {
                 url={video?.url}
                 hashtag={video?.hashtag}
                 likes={video?.likes}
-                comments={video?.comments}
                 shares={video?.shares}
                 liked={video?.likes.includes(profile?.uid as string)}
                 vid={video.vid}
                 views={video.views}
                 uid={video.uid}
+                comments={video.comments}
               />
             )}
           </SCVideoWrapper>
           <Grid item md={5}>
-            {video && profileVideo && <DetailsRight profileVideo={profileVideo} video={video} />}
+            {video && profileVideo && <DetailsRight profileVideo={profileVideo} video={video} comments={comments} />}
           </Grid>
         </Grid>
       </SCWrapper>

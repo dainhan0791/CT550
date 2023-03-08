@@ -1,26 +1,39 @@
 import { Divider, Input } from '@mui/material';
-import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, doc, serverTimestamp, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { Router, useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import styled from 'styled-components';
 import { fStore } from '../../firebase/init.firebase';
 import { IAccountItem } from '../../interfaces/account.interface';
-import { IVideoItem } from '../../interfaces/video.interface';
+import { IComment } from '../../interfaces/comment.interface';
+import { IVideoDetailsItem, IVideoItem } from '../../interfaces/video.interface';
 import { useAppSelector } from '../../redux/hooks/hooks';
-import HashtagChip from '../chips/HashtagChip';
+import { guid } from '../../utils/generates';
 import AccountDetailsVideoItem from '../items/AccountDetailsVideoItem';
 import ActionsVideo from './ActionsVideo';
 import CoppyTag from './CoppyTag';
 import DetailsVideoComments from './DetailsVideoComments';
 
 const SCDetailsRightWrapper = styled.div`
+  height: 100vh;
+`;
+const SCDetailsWrapper = styled.div`
+  max-height: 40%;
   margin-top: 3rem;
   margin-left: 1rem;
   margin-right: 2rem;
 `;
 
-const DetailsRight = ({ profileVideo, video }: { profileVideo: IAccountItem; video: IVideoItem }) => {
+const DetailsRight = ({
+  profileVideo,
+  video,
+  comments,
+}: {
+  profileVideo: IAccountItem;
+  video: IVideoDetailsItem;
+  comments: Array<IComment>;
+}) => {
   const router = useRouter();
   const profile = useAppSelector((state) => state.account.profile);
   const { enqueueSnackbar } = useSnackbar();
@@ -68,9 +81,37 @@ const DetailsRight = ({ profileVideo, video }: { profileVideo: IAccountItem; vid
       console.log(error);
     }
   };
+
+  const handleComment = async (text: string) => {
+    try {
+      if (fStore) {
+        const cid = guid();
+        const videoRef = doc(fStore, 'videos', video.vid);
+        const commentRef = doc(fStore, 'comments', cid);
+        if (commentRef && profile && video && text) {
+          await setDoc(commentRef, {
+            cid: cid,
+            uid: profile.uid,
+            vid: video.vid,
+            text: text,
+            creator: profile.uid === video.uid,
+            timestamp: serverTimestamp(),
+            likes: [],
+            childrens: [],
+          });
+          await updateDoc(videoRef, {
+            comments: increment(1),
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <>
-      <SCDetailsRightWrapper>
+    <SCDetailsRightWrapper>
+      <SCDetailsWrapper>
         <AccountDetailsVideoItem
           uid={profileVideo.uid}
           name={profileVideo.name}
@@ -91,10 +132,10 @@ const DetailsRight = ({ profileVideo, video }: { profileVideo: IAccountItem; vid
           liked={liked}
         />
         <CoppyTag tag={coppyUrl} />
-      </SCDetailsRightWrapper>
+      </SCDetailsWrapper>
       <Divider />
-      <DetailsVideoComments />
-    </>
+      {comments && <DetailsVideoComments handleComment={handleComment} comments={comments} />}
+    </SCDetailsRightWrapper>
   );
 };
 

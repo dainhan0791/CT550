@@ -1,3 +1,4 @@
+import { ITime } from './time.interface';
 export interface ICurrentVideo {
   video: IVideoItem | null;
 }
@@ -8,7 +9,19 @@ export interface IVideoItem {
   desc: string;
   hashtag: string;
   url: string;
-  timestamp?: any;
+  timestamp?: ITime;
+  likes: Array<string>;
+  comments: number;
+  shares: number;
+  views: Array<string>;
+}
+export interface IVideoDetailsItem {
+  uid: string;
+  vid: string;
+  desc: string;
+  hashtag: string;
+  url: string;
+  timestamp: ITime;
   likes: Array<string>;
   comments: number;
   shares: number;

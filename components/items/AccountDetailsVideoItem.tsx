@@ -1,10 +1,10 @@
 import React from 'react';
 import { Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
-import { Check } from '@mui/icons-material';
+import { Check, AccessTime } from '@mui/icons-material';
 import styled from 'styled-components';
 import moment from 'moment';
 
-import { IAccountItem, IAccountVideoItem, IIsVideoProps } from '../../interfaces/account.interface';
+import { IAccountItem, IAccountDetailsVideoItem, IIsVideoProps } from '../../interfaces/account.interface';
 import { fAuth, fStore } from '../../firebase/init.firebase';
 import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useAppSelector } from '../../redux/hooks/hooks';
@@ -45,6 +45,12 @@ const SCListBodyItem = styled.div`
 
 const SCNameWrapper = styled.div``;
 
+const SCWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
 const SCSubNameWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -58,7 +64,12 @@ const SCSubName = styled.p`
   display: flex;
   font-weight: bold;
 `;
-const SCTimer = styled.p``;
+const SCTimer = styled.p`
+  font-size: 0.83rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
 const SCDescriptionVideo = styled.p`
   font-size: 1rem;
   line-height: 22px;
@@ -104,8 +115,12 @@ const SCButtonFollowed = styled(SCButtonFollow)`
   opacity: 0.4;
   cursor: auto;
 `;
-const AccountDetailsVideoItem = (props: IAccountVideoItem) => {
-  console.log(props.timestamp);
+const SCCreator = styled.div`
+  font-size: 0.9rem;
+  color: rgb(254, 44, 85);
+  font-weight: bold;
+`;
+const AccountDetailsVideoItem = (props: IAccountDetailsVideoItem) => {
   const router = useRouter();
 
   const profile = useAppSelector((state) => state.account.profile);
@@ -131,15 +146,21 @@ const AccountDetailsVideoItem = (props: IAccountVideoItem) => {
           <SCListBodyItem>
             <SCAccountHeadItem>
               <SCNameWrapper>
-                <SCName>{props.name}</SCName>
-                {props.tick && <SCCheckIcon />}
+                <SCWrapper>
+                  <SCName>{props.name}</SCName>
+                  {props.tick && <SCCheckIcon />}
+                </SCWrapper>
+
                 <SCSubNameWrapper>
                   <SCSubName>{props.nickname}.</SCSubName>
-                  <SCTimer>{moment(props.timestamp.seconds * 1000).fromNow()}</SCTimer>
+                  <SCTimer>
+                    {moment(props.timestamp.seconds * 1000).fromNow()}
+                    <AccessTime sx={{ width: '14px', height: '14px' }} />
+                  </SCTimer>
                 </SCSubNameWrapper>
               </SCNameWrapper>
               {profile && profile.uid === props.uid ? (
-                ''
+                <SCCreator>Creator</SCCreator>
               ) : (
                 <>
                   {followed ? (
@@ -153,7 +174,7 @@ const AccountDetailsVideoItem = (props: IAccountVideoItem) => {
           </SCListBodyItem>
         </ListItem>
         <ListItem alignItems="flex-start">
-          <SCDescriptionVideo>{props.desc} lorem</SCDescriptionVideo>
+          <SCDescriptionVideo>{props.desc}</SCDescriptionVideo>
         </ListItem>
       </List>
     </SCAccountItemWrapper>

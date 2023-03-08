@@ -19,16 +19,21 @@ const SCCoppyTagWrapper = styled.div`
   background: none rgba(22, 24, 35, 0.06);
   margin-bottom: 1rem;
 `;
-const SCTag = styled.p``;
+
+const SCTag = styled.p`
+  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* số dòng hiển thị */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 const SCCoppy = styled.button`
   border: none;
   outline: none;
   color: rgb(22, 24, 35);
   font-weight: 700;
-  flex: 0 0 auto;
   cursor: pointer;
-  width: 100%:
- 
 `;
 
 const CoppyTag = ({ tag }: { tag: string }) => {
@@ -48,10 +53,14 @@ const CoppyTag = ({ tag }: { tag: string }) => {
   return (
     <SCCoppyTagWrapper>
       <Grid container>
-        <Grid item xs={11}>
-          <SCTag>{tag}</SCTag>
+        <Grid item md={11}>
+          <SCTag>
+            {tag} Lorem ipsum dolor sit amet consectetur adipisicing elit. A dolor velit accusantium laboriosam dolorem
+            natus quae aperiam, quam perspiciatis modi quidem sint numquam sed corporis voluptates possimus totam
+            inventore nemo!
+          </SCTag>
         </Grid>
-        <Grid item xs={1}>
+        <Grid item md={1}>
           <SCCoppy onClick={handleCoppy}>Coppy</SCCoppy>
         </Grid>
       </Grid>

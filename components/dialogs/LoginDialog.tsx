@@ -75,6 +75,7 @@ const SCButton = styled(Button)`
 const LogInDialog = (props: IDialogProps) => {
   const { onClose, open } = props;
   const { enqueueSnackbar } = useSnackbar();
+  const profile = useAppSelector((state) => state.account.profile);
 
   const [phoneNumber, setPhoneNumber] = React.useState<string>('');
   const [otp, setOtp] = React.useState<string>('');
@@ -166,11 +167,13 @@ const LogInDialog = (props: IDialogProps) => {
       const UserCredentialImpl = await confirmationResult.confirm(otp);
       if (UserCredentialImpl) {
         if (fStore) {
-          await setDoc(doc(fStore, 'users', UserCredentialImpl.user.uid), {
-            uid: UserCredentialImpl.user.uid,
-            tick: false,
-            timestamp: serverTimestamp(),
-          });
+          if (!profile) {
+            await setDoc(doc(fStore, 'users', UserCredentialImpl.user.uid), {
+              uid: UserCredentialImpl.user.uid,
+              tick: false,
+              timestamp: serverTimestamp(),
+            });
+          }
           enqueueSnackbar(VERTIFY_OTP_SUCCESS, { variant: 'success' });
           handleCloseLoginDialog();
         }

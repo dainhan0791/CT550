@@ -77,7 +77,6 @@ const Video = (props: IVideo) => {
   const profile = useAppSelector((state) => state.account.profile);
   const videoRef = React.useRef<any>();
   const [playing, setPlaying] = React.useState(false);
-  const [current, setCurrent] = React.useState<any>();
 
   const options = {
     root: null,
@@ -97,7 +96,6 @@ const Video = (props: IVideo) => {
             });
           }
           videoRef.current.play();
-          setCurrent(videoRef.current);
           setPlaying(true);
         }
       }

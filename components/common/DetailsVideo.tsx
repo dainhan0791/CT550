@@ -12,17 +12,15 @@ import { Slider } from '@mui/material';
 
 const SCVideoWrapper = styled.div`
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
   position: relative;
 `;
 
 const SCVideo = styled.video`
-  height: 100vh;
   display: block;
-  object-fit: cover;
-  cursor: pointer;
+  width: 100%;
+  height: 100vh;
+  object-fit: contain;
 `;
 
 const SCBackButton = styled.button`
@@ -74,7 +72,7 @@ const SCSliderButton = styled.button`
   border: none;
   outline: none;
   right: 25px;
-  bottom: 70px;
+  bottom: 120px;
   transition: opacity 0.3s ease 0s;
   display: none;
   &:after {
@@ -102,7 +100,7 @@ const SCVolumeButton = styled.button`
   border: none;
   outline: none;
   right: 20px;
-  bottom: 20px;
+  bottom: 70px;
   transition: opacity 0.3s ease 0s;
 `;
 const SCPlayArrowButton = styled(PlayArrowRounded)`
@@ -120,7 +118,8 @@ const SCPlayArrowButton = styled(PlayArrowRounded)`
   border: none;
   outline: none;
   top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   transition: opacity 0.3s ease 0s;
 `;
 

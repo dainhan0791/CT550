@@ -144,6 +144,7 @@ const UploadVideoDialog = (props: IDialogProps) => {
                     url: downloadURL,
                     likes: [],
                     views: [],
+                    comments: 0,
                     timestamp: serverTimestamp(),
                   });
 

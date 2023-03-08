@@ -45,7 +45,7 @@ const VideoItem = (props: IVideoItem) => {
   React.useEffect(() => {
     const getProfileVideoFromFirebase = async () => {
       try {
-        if (fStore) {
+        if (fStore && props.uid) {
           const docRef = doc(fStore, 'users', props.uid);
 
           const docSnap = await getDoc(docRef);
